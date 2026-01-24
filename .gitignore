@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build outputs (matches in all directories including apps/*)
+dist/
+.next/
+.astro/
+.turbo/
+out/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Supabase
+.supabase/
+
+# Testing
+coverage/
+
+# Misc
+*.local
+.cache/
+*.tsbuildinfo
