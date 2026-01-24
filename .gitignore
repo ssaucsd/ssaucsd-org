@@ -1,7 +1,6 @@
 # Dependencies
 node_modules/
 
-# Build outputs (matches in all directories including apps/*)
 dist/
 .next/
 .astro/
