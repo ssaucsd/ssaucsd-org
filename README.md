@@ -82,12 +82,14 @@ pnpm db:start
 ```
 
 This starts the local Supabase instance:
+
 - API: http://127.0.0.1:54321
 - Studio UI: http://127.0.0.1:54323
 
 After starting, copy the displayed `anon key` to your environment files.
 
 For local development, use these values in `apps/dashboard/.env`:
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key shown after db:start>
@@ -106,27 +108,27 @@ pnpm dev
 
 ### Root Level (`.env`)
 
-| Variable | Description |
-|----------|-------------|
+| Variable                                      | Description                                  |
+| --------------------------------------------- | -------------------------------------------- |
 | `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET` | Google OAuth client secret for Supabase Auth |
 
 ### Dashboard (`apps/dashboard/.env`)
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key |
-| `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
-| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project API key |
-| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host URL |
-| `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN for error tracking |
-| `SENTRY_AUTH_TOKEN` | Sentry auth token for source maps |
+| Variable                                      | Description                       |
+| --------------------------------------------- | --------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`                    | Supabase project URL              |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`               | Supabase anonymous/public key     |
+| `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_SECRET` | Google OAuth client secret        |
+| `NEXT_PUBLIC_POSTHOG_KEY`                     | PostHog project API key           |
+| `NEXT_PUBLIC_POSTHOG_HOST`                    | PostHog host URL                  |
+| `NEXT_PUBLIC_SENTRY_DSN`                      | Sentry DSN for error tracking     |
+| `SENTRY_AUTH_TOKEN`                           | Sentry auth token for source maps |
 
 ### Web (`apps/web/.env`)
 
-| Variable | Description |
-|----------|-------------|
-| `PUBLIC_SUPABASE_URL` | Supabase project URL |
+| Variable                   | Description                   |
+| -------------------------- | ----------------------------- |
+| `PUBLIC_SUPABASE_URL`      | Supabase project URL          |
 | `PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key |
 
 ## Development Commands
@@ -230,6 +232,7 @@ import { Tables, Database, Enums } from "@ssaucsd/database";
 ```
 
 Regenerate types after schema changes:
+
 ```bash
 pnpm db:generate-types
 ```

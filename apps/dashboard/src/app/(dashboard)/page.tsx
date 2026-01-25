@@ -1,9 +1,4 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Calendar,
   ArrowRight01Icon,
@@ -110,7 +105,10 @@ export default async function Page() {
                         </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <span className="truncate">
-                            {new URL(resource.link).hostname.replace("www.", "")}
+                            {new URL(resource.link).hostname.replace(
+                              "www.",
+                              "",
+                            )}
                           </span>
                           {resource.tags && resource.tags.length > 0 && (
                             <>
@@ -169,7 +167,10 @@ export default async function Page() {
           <CardContent className="flex flex-wrap gap-3">
             {rsvpEvents && rsvpEvents.length > 0 ? (
               rsvpEvents.map((event) => (
-                <div key={event.id} className="basis-full sm:basis-[calc(50%-6px)] lg:basis-[calc(33.333%-8px)]">
+                <div
+                  key={event.id}
+                  className="basis-full sm:basis-[calc(50%-6px)] lg:basis-[calc(33.333%-8px)]"
+                >
                   <HomeEventCard event={event} />
                 </div>
               ))
@@ -187,7 +188,8 @@ export default async function Page() {
                   No RSVPs Yet
                 </h3>
                 <p className="text-sm text-muted-foreground max-w-[250px]">
-                  You haven&apos;t RSVP&apos;d to any events. Check out the upcoming events above!
+                  You haven&apos;t RSVP&apos;d to any events. Check out the
+                  upcoming events above!
                 </p>
               </div>
             )}

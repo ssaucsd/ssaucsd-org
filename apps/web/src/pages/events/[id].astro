@@ -9,6 +9,11 @@ import { generateEventSchema } from "@/lib/schemas";
 import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
 
 const { id } = Astro.params;
+
+if (!id) {
+  return Astro.redirect("/404");
+}
+
 const event = await getEventById(id);
 
 if (!event) {

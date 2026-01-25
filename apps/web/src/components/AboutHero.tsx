@@ -27,10 +27,14 @@ export default function AboutHero({ imageSrc }: AboutHeroProps) {
         <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
           <h1 className="text-5xl font-black">What is SSA at UCSD?</h1>
           <h2 className="mt-5 text-2xl font-bold max-w-2xl text-primary">
-            {"We are the Symphonic Student Association at the University of California, San Diego!"}
+            {
+              "We are the Symphonic Student Association at the University of California, San Diego!"
+            }
             <br />
             <br />
-            {"We are UCSD's largest and most inclusive student-run classical music-oriented organization, for anyone interested in classical music, regardless of major or skill level."}
+            {
+              "We are UCSD's largest and most inclusive student-run classical music-oriented organization, for anyone interested in classical music, regardless of major or skill level."
+            }
           </h2>
         </div>
         <img

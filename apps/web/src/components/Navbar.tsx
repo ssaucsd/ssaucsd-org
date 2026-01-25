@@ -17,7 +17,7 @@ export default function Navbar({ currentPath, navIconSrc }: NavbarProps) {
 
   const handleLinkClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
-    href: string
+    href: string,
   ) => {
     setIsOpen(false);
     if (currentPath === href) {

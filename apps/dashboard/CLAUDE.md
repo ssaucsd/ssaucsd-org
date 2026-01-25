@@ -9,6 +9,7 @@ SSAUCSD Dashboard V2 - A Next.js dashboard application for managing SSA UCSD mem
 ## Monorepo Context
 
 This app is part of the ssaucsd monorepo. Run commands from the **monorepo root** (`../../`):
+
 - `pnpm dev` - Start all apps
 - `pnpm --filter @ssaucsd/dashboard dev` - Start only this app
 
@@ -29,6 +30,7 @@ This app is part of the ssaucsd monorepo. Run commands from the **monorepo root*
 - `pnpm db:generate-types` - Regenerate TypeScript types from database schema
 
 From within this directory:
+
 - `pnpm db:migrate` - Create a new migration file
 - `pnpm db:diff -f <migration_name>` - Generate migration from schema changes
 - `pnpm db:push` - Push local migrations to remote database
@@ -154,6 +156,7 @@ TypeScript configured with `@/*` alias mapping to `src/*` - use this for all imp
 ### Database Types
 
 Database types are shared via the `@ssaucsd/database` package:
+
 ```typescript
 import { Tables, Database, Enums } from "@ssaucsd/database";
 ```
