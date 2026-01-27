@@ -20,6 +20,9 @@ export function HomeEventCard({ event }: HomeEventCardProps) {
       day: "numeric",
       year: "numeric",
     });
+    if (event.is_all_day) {
+      return `${dateStr} · All Day`;
+    }
     const startTimeStr = startDate
       .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
       .replace(" ", "");

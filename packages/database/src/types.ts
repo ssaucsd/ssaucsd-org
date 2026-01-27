@@ -41,6 +41,7 @@ export type Database = {
           end_time: string;
           id: string;
           image_url: string;
+          is_all_day: boolean;
           location: string;
           start_time: string;
           title: string;
@@ -52,6 +53,7 @@ export type Database = {
           end_time: string;
           id?: string;
           image_url?: string;
+          is_all_day?: boolean;
           location: string;
           start_time: string;
           title: string;
@@ -63,6 +65,7 @@ export type Database = {
           end_time?: string;
           id?: string;
           image_url?: string;
+          is_all_day?: boolean;
           location?: string;
           start_time?: string;
           title?: string;

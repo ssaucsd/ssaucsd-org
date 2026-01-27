@@ -21,6 +21,7 @@ export async function createEvent(formData: FormData): Promise<ActionResult> {
   const startTime = formData.get("start_time") as string;
   const endTime = formData.get("end_time") as string;
   const imageUrl = formData.get("image_url") as string;
+  const isAllDay = formData.get("is_all_day") === "on";
 
   if (!title || !location || !startTime || !endTime) {
     return {
@@ -37,6 +38,7 @@ export async function createEvent(formData: FormData): Promise<ActionResult> {
     start_time: startTime,
     end_time: endTime,
     image_url: imageUrl || "",
+    is_all_day: isAllDay,
   });
 
   if (error) {
@@ -64,6 +66,7 @@ export async function updateEvent(
   const startTime = formData.get("start_time") as string;
   const endTime = formData.get("end_time") as string;
   const imageUrl = formData.get("image_url") as string;
+  const isAllDay = formData.get("is_all_day") === "on";
 
   if (!title || !location || !startTime || !endTime) {
     return {
@@ -82,6 +85,7 @@ export async function updateEvent(
       start_time: startTime,
       end_time: endTime,
       image_url: imageUrl || "",
+      is_all_day: isAllDay,
     })
     .eq("id", id);
 

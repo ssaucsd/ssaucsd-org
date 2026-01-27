@@ -46,8 +46,8 @@ export function EventFormDialog({ event, trigger }: EventFormDialogProps) {
   const [error, setError] = useState<string | null>(null);
   const [imageUrl, setImageUrl] = useState<string>(event?.image_url || "");
   const [isUploading, setIsUploading] = useState(false);
+  const [isAllDay, setIsAllDay] = useState(event?.is_all_day ?? false);
 
-  // Convert datetime-local value to ISO string with timezone
   const convertToISO = (datetimeLocal: string): string => {
     if (!datetimeLocal) return "";
     const date = new Date(datetimeLocal);
@@ -63,8 +63,19 @@ export function EventFormDialog({ event, trigger }: EventFormDialogProps) {
 
     const startTime = formData.get("start_time") as string;
     const endTime = formData.get("end_time") as string;
-    if (startTime) formData.set("start_time", convertToISO(startTime));
-    if (endTime) formData.set("end_time", convertToISO(endTime));
+
+    if (isAllDay) {
+      const startDate = new Date(startTime);
+      startDate.setHours(0, 0, 0, 0);
+      formData.set("start_time", startDate.toISOString());
+
+      const endDate = new Date(startTime);
+      endDate.setHours(23, 59, 59, 999);
+      formData.set("end_time", endDate.toISOString());
+    } else {
+      if (startTime) formData.set("start_time", convertToISO(startTime));
+      if (endTime) formData.set("end_time", convertToISO(endTime));
+    }
 
     startTransition(async () => {
       let result: ActionResult;
@@ -75,7 +86,6 @@ export function EventFormDialog({ event, trigger }: EventFormDialogProps) {
       }
 
       if (result.success) {
-        // Track admin event created/updated
         const eventTitle = formData.get("title") as string;
         const eventLocation = formData.get("location") as string;
 
@@ -95,6 +105,7 @@ export function EventFormDialog({ event, trigger }: EventFormDialogProps) {
         setOpen(false);
         if (!isEditing) {
           setImageUrl("");
+          setIsAllDay(false);
         }
       } else {
         setError(result.error || "An error occurred");
@@ -118,6 +129,7 @@ export function EventFormDialog({ event, trigger }: EventFormDialogProps) {
         setOpen(newOpen);
         if (!newOpen && !isEditing) {
           setImageUrl("");
+          setIsAllDay(false);
         }
       }}
     >
@@ -175,28 +187,57 @@ export function EventFormDialog({ event, trigger }: EventFormDialogProps) {
             />
           </Field>
 
+          <Field>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="is_all_day"
+                name="is_all_day"
+                checked={isAllDay}
+                onChange={(e) => setIsAllDay(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <label htmlFor="is_all_day" className="text-sm font-medium">
+                All Day Event
+              </label>
+            </div>
+            <FieldDescription>
+              When checked, the event will run from midnight to 11:59 PM
+            </FieldDescription>
+          </Field>
+
           <div className="grid grid-cols-2 gap-4">
             <Field>
-              <FieldLabel htmlFor="start_time">Start Time</FieldLabel>
+              <FieldLabel htmlFor="start_time">
+                {isAllDay ? "Date" : "Start Time"}
+              </FieldLabel>
               <Input
                 id="start_time"
                 name="start_time"
-                type="datetime-local"
-                defaultValue={formatDateTimeLocal(event?.start_time)}
+                type={isAllDay ? "date" : "datetime-local"}
+                defaultValue={
+                  isAllDay
+                    ? event?.start_time
+                      ? formatDateTimeLocal(event.start_time).slice(0, 10)
+                      : ""
+                    : formatDateTimeLocal(event?.start_time)
+                }
                 required
               />
             </Field>
 
-            <Field>
-              <FieldLabel htmlFor="end_time">End Time</FieldLabel>
-              <Input
-                id="end_time"
-                name="end_time"
-                type="datetime-local"
-                defaultValue={formatDateTimeLocal(event?.end_time)}
-                required
-              />
-            </Field>
+            {!isAllDay && (
+              <Field>
+                <FieldLabel htmlFor="end_time">End Time</FieldLabel>
+                <Input
+                  id="end_time"
+                  name="end_time"
+                  type="datetime-local"
+                  defaultValue={formatDateTimeLocal(event?.end_time)}
+                  required
+                />
+              </Field>
+            )}
           </div>
 
           <Field>

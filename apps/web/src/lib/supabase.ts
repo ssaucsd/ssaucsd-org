@@ -13,6 +13,7 @@ export interface Event {
   end_time: string;
   image_url: string;
   location: string;
+  is_all_day?: boolean;
 }
 
 export async function getEvents(limit = 4): Promise<Event[]> {
@@ -20,7 +21,7 @@ export async function getEvents(limit = 4): Promise<Event[]> {
 
   const { data, error } = await supabase
     .from("events")
-    .select("id, title, start_time, end_time, image_url, location")
+    .select("id, title, start_time, end_time, image_url, location, is_all_day")
     .gt("end_time", now)
     .order("start_time", { ascending: true })
     .limit(limit);
@@ -38,7 +39,7 @@ export async function getAllEvents(): Promise<Event[]> {
 
   const { data, error } = await supabase
     .from("events")
-    .select("id, title, start_time, end_time, image_url, location")
+    .select("id, title, start_time, end_time, image_url, location, is_all_day")
     .gt("end_time", now)
     .order("start_time", { ascending: true });
 
@@ -53,7 +54,9 @@ export async function getAllEvents(): Promise<Event[]> {
 export async function getEventById(id: string): Promise<Event | null> {
   const { data, error } = await supabase
     .from("events")
-    .select("id, title, description, start_time, end_time, image_url, location")
+    .select(
+      "id, title, description, start_time, end_time, image_url, location, is_all_day",
+    )
     .eq("id", id)
     .single();
 

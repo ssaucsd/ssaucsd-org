@@ -5,7 +5,8 @@ import type { Event } from "@/lib/supabase";
 
 interface Props extends Event {}
 
-const { id, title, start_time, image_url, location, end_time } = Astro.props;
+const { id, title, start_time, image_url, location, end_time, is_all_day } =
+  Astro.props;
 
 const startDate = new Date(start_time);
 const endDate = end_time ? new Date(end_time) : null;
@@ -59,11 +60,17 @@ const formattedEndTime = endDate
       <p class="text-sm font-medium text-primary">
         {formattedDate}
         {" · "}
-        {formattedStartTime}
-        {formattedEndTime && (
+        {is_all_day ? (
+          "All Day"
+        ) : (
           <>
-            {" – "}
-            {formattedEndTime}
+            {formattedStartTime}
+            {formattedEndTime && (
+              <>
+                {" – "}
+                {formattedEndTime}
+              </>
+            )}
           </>
         )}
       </p>
