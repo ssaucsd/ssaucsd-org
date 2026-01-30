@@ -39,12 +39,10 @@ export default async function Page() {
               </Link>
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
+          <CardContent className="grid grid-cols-2 gap-3">
             {events && events.length > 0 ? (
               events.map((event) => (
-                <div key={event.id} className="basis-[calc(50%-6px)]">
-                  <HomeEventCard event={event} />
-                </div>
+                <HomeEventCard key={event.id} event={event} />
               ))
             ) : (
               <div className="w-full flex flex-col items-center justify-center py-12 text-center text-muted-foreground bg-muted/10 rounded-lg border-2 border-dashed border-muted/20">
@@ -164,18 +162,13 @@ export default async function Page() {
               </Link>
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {rsvpEvents && rsvpEvents.length > 0 ? (
               rsvpEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className="basis-full sm:basis-[calc(50%-6px)] lg:basis-[calc(33.333%-8px)]"
-                >
-                  <HomeEventCard event={event} />
-                </div>
+                <HomeEventCard key={event.id} event={event} />
               ))
             ) : (
-              <div className="w-full flex flex-col items-center justify-center py-12 text-center text-muted-foreground bg-muted/10 rounded-lg border-2 border-dashed border-muted/20">
+              <div className="col-span-full w-full flex flex-col items-center justify-center py-12 text-center text-muted-foreground bg-muted/10 rounded-lg border-2 border-dashed border-muted/20">
                 <div className="bg-background p-3 rounded-full shadow-sm mb-4">
                   <HugeiconsIcon
                     icon={Calendar}
