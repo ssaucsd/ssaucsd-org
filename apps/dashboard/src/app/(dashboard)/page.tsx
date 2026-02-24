@@ -17,6 +17,7 @@ import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner"
 import type { EventWithRsvp, ResourceWithTags } from "@ssaucsd/database";
 
 export default function Page() {
+  const homeEventsLimit = 4;
   const firstName = useQuery(clientApi.users.getFirstName) as
     | string
     | null
@@ -40,6 +41,9 @@ export default function Page() {
     return <DashboardLoadingSpinner />;
   }
 
+  const upcomingEvents = events.slice(0, homeEventsLimit);
+  const upcomingRsvpEvents = rsvpEvents.slice(0, homeEventsLimit);
+
   return (
     <div className="flex flex-col min-h-screen w-full p-4 gap-8">
       <h1 className="text-4xl font-serif">
@@ -60,8 +64,8 @@ export default function Page() {
             </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3">
-            {events && events.length > 0 ? (
-              events.map((event) => (
+            {upcomingEvents.length > 0 ? (
+              upcomingEvents.map((event) => (
                 <HomeEventCard key={event.id} event={event} />
               ))
             ) : (
@@ -183,8 +187,8 @@ export default function Page() {
             </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {rsvpEvents && rsvpEvents.length > 0 ? (
-              rsvpEvents.map((event) => (
+            {upcomingRsvpEvents.length > 0 ? (
+              upcomingRsvpEvents.map((event) => (
                 <HomeEventCard key={event.id} event={event} />
               ))
             ) : (
