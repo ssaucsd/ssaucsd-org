@@ -14,14 +14,32 @@ type LiveEventDetailProps = {
 const formatEventTime = (event: Event) => {
   const startDate = new Date(event.start_time);
   const endDate = new Date(event.end_time);
+  const dateKey = (date: Date) =>
+    date.toLocaleDateString("en-US", {
+      timeZone: "America/Los_Angeles",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  const isMultiDay = dateKey(startDate) !== dateKey(endDate);
 
-  const formattedDate = startDate.toLocaleDateString("en-US", {
+  const formattedStartDate = startDate.toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
     timeZone: "America/Los_Angeles",
   });
+  const formattedEndDate = endDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "America/Los_Angeles",
+  });
+  const formattedDate = isMultiDay
+    ? `${formattedStartDate} - ${formattedEndDate}`
+    : formattedStartDate;
 
   const formattedStartTime = startDate.toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -37,8 +55,10 @@ const formatEventTime = (event: Event) => {
 
   return {
     formattedDate,
+    formattedEndDate,
     formattedStartTime,
     formattedEndTime,
+    isMultiDay,
   };
 };
 
@@ -57,8 +77,13 @@ function LiveEventDetailInner({ id, initialEvent }: LiveEventDetailProps) {
     );
   }
 
-  const { formattedDate, formattedStartTime, formattedEndTime } =
-    formatEventTime(currentEvent);
+  const {
+    formattedDate,
+    formattedEndDate,
+    formattedStartTime,
+    formattedEndTime,
+    isMultiDay,
+  } = formatEventTime(currentEvent);
 
   return (
     <>
@@ -81,7 +106,11 @@ function LiveEventDetailInner({ id, initialEvent }: LiveEventDetailProps) {
             <Clock className="h-5 w-5 text-primary" />
           </div>
           <span className="text-base font-medium">
-            {formattedStartTime} – {formattedEndTime}
+            {currentEvent.is_all_day
+              ? "All Day"
+              : isMultiDay
+                ? `${formattedStartTime} – ${formattedEndDate}, ${formattedEndTime}`
+                : `${formattedStartTime} – ${formattedEndTime}`}
           </span>
         </div>
 
