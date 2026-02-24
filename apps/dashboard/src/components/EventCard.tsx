@@ -14,15 +14,26 @@ interface EventCardProps {
 export function EventCard({ event }: EventCardProps) {
   const startDate = new Date(event.start_time);
   const endDate = new Date(event.end_time);
+  const isMultiDay =
+    startDate.getFullYear() !== endDate.getFullYear() ||
+    startDate.getMonth() !== endDate.getMonth() ||
+    startDate.getDate() !== endDate.getDate();
 
   const formatDateTime = () => {
-    const dateStr = startDate.toLocaleDateString("en-US", {
+    const startDateStr = startDate.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    const endDateStr = endDate.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
     if (event.is_all_day) {
-      return `${dateStr} · All Day`;
+      return isMultiDay
+        ? `${startDateStr} - ${endDateStr} · All Day`
+        : `${startDateStr} · All Day`;
     }
     const startTimeStr = startDate
       .toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
@@ -31,7 +42,9 @@ export function EventCard({ event }: EventCardProps) {
       hour: "numeric",
       minute: "2-digit",
     });
-    return `${dateStr}, ${startTimeStr} - ${endTimeStr}`;
+    return isMultiDay
+      ? `${startDateStr}, ${startTimeStr} - ${endDateStr}, ${endTimeStr}`
+      : `${startDateStr}, ${startTimeStr} - ${endTimeStr}`;
   };
 
   return (

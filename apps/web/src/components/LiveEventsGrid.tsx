@@ -13,13 +13,33 @@ type LiveEventsGridProps = {
 const formatDate = (event: Event) => {
   const startDate = new Date(event.start_time);
   const endDate = event.end_time ? new Date(event.end_time) : null;
+  const dateKey = (date: Date) =>
+    date.toLocaleDateString("en-US", {
+      timeZone: "America/Los_Angeles",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  const isMultiDay = endDate ? dateKey(startDate) !== dateKey(endDate) : false;
 
-  const formattedDate = startDate.toLocaleDateString("en-US", {
+  const formattedStartDate = startDate.toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",
     day: "numeric",
     timeZone: "America/Los_Angeles",
   });
+  const formattedEndDate = endDate
+    ? endDate.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+        timeZone: "America/Los_Angeles",
+      })
+    : null;
+  const formattedDate =
+    isMultiDay && formattedEndDate
+      ? `${formattedStartDate} - ${formattedEndDate}`
+      : formattedStartDate;
 
   const formattedStartTime = startDate.toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -37,14 +57,21 @@ const formatDate = (event: Event) => {
 
   return {
     formattedDate,
+    formattedEndDate,
     formattedStartTime,
     formattedEndTime,
+    isMultiDay,
   };
 };
 
 function EventCard({ event }: { event: Event }) {
-  const { formattedDate, formattedStartTime, formattedEndTime } =
-    formatDate(event);
+  const {
+    formattedDate,
+    formattedEndDate,
+    formattedStartTime,
+    formattedEndTime,
+    isMultiDay,
+  } = formatDate(event);
 
   return (
     <a href={`/events/${event.id}`} className="block h-full">
@@ -78,7 +105,9 @@ function EventCard({ event }: { event: Event }) {
                 {formattedEndTime && (
                   <>
                     {" – "}
-                    {formattedEndTime}
+                    {isMultiDay && formattedEndDate
+                      ? `${formattedEndDate}, ${formattedEndTime}`
+                      : formattedEndTime}
                   </>
                 )}
               </>

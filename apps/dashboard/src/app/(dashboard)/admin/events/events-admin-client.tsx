@@ -55,6 +55,40 @@ export function EventsAdminClient() {
           {events.map((event) => {
             const startDate = new Date(event.start_time);
             const endDate = new Date(event.end_time);
+            const isMultiDay =
+              startDate.getFullYear() !== endDate.getFullYear() ||
+              startDate.getMonth() !== endDate.getMonth() ||
+              startDate.getDate() !== endDate.getDate();
+            const formatDateTime = () => {
+              const startDateStr = startDate.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+              const endDateStr = endDate.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              });
+              if (event.is_all_day) {
+                return isMultiDay
+                  ? `${startDateStr} - ${endDateStr} · All Day`
+                  : `${startDateStr} · All Day`;
+              }
+              const startTimeStr = startDate
+                .toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })
+                .replace(" ", "");
+              const endTimeStr = endDate.toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+              });
+              return isMultiDay
+                ? `${startDateStr}, ${startTimeStr} - ${endDateStr}, ${endTimeStr}`
+                : `${startDateStr}, ${startTimeStr} - ${endTimeStr}`;
+            };
 
             return (
               <Card
@@ -134,25 +168,7 @@ export function EventsAdminClient() {
                         icon={Clock}
                         className="h-4 w-4 shrink-0"
                       />
-                      <span>
-                        {(() => {
-                          const dateStr = startDate.toLocaleDateString(
-                            "en-US",
-                            { month: "short", day: "numeric", year: "numeric" },
-                          );
-                          const startTimeStr = startDate
-                            .toLocaleTimeString("en-US", {
-                              hour: "numeric",
-                              minute: "2-digit",
-                            })
-                            .replace(" ", "");
-                          const endTimeStr = endDate.toLocaleTimeString(
-                            "en-US",
-                            { hour: "numeric", minute: "2-digit" },
-                          );
-                          return `${dateStr}, ${startTimeStr} - ${endTimeStr}`;
-                        })()}
-                      </span>
+                      <span>{formatDateTime()}</span>
                     </div>
 
                     {/* Location */}

@@ -10,13 +10,33 @@ const { id, title, start_time, image_url, location, end_time, is_all_day } =
 
 const startDate = new Date(start_time);
 const endDate = end_time ? new Date(end_time) : null;
+const dateKey = (date: Date) =>
+  date.toLocaleDateString("en-US", {
+    timeZone: "America/Los_Angeles",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+const isMultiDay = endDate ? dateKey(startDate) !== dateKey(endDate) : false;
 
-const formattedDate = startDate.toLocaleDateString("en-US", {
+const formattedStartDate = startDate.toLocaleDateString("en-US", {
   weekday: "short",
   month: "short",
   day: "numeric",
   timeZone: "America/Los_Angeles",
 });
+const formattedEndDate = endDate
+  ? endDate.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      timeZone: "America/Los_Angeles",
+    })
+  : null;
+const formattedDate =
+  isMultiDay && formattedEndDate
+    ? `${formattedStartDate} - ${formattedEndDate}`
+    : formattedStartDate;
 
 const formattedStartTime = startDate.toLocaleTimeString("en-US", {
   hour: "numeric",
@@ -68,7 +88,9 @@ const formattedEndTime = endDate
             {formattedEndTime && (
               <>
                 {" – "}
-                {formattedEndTime}
+                {isMultiDay && formattedEndDate
+                  ? `${formattedEndDate}, ${formattedEndTime}`
+                  : formattedEndTime}
               </>
             )}
           </>
