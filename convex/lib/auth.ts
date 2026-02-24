@@ -1,5 +1,37 @@
 import { ConvexError } from "convex/values";
 
+const emailClaimKeys = [
+  "email",
+  "email_address",
+  "emailAddress",
+  "primary_email_address",
+  "primaryEmailAddress",
+];
+
+const normalizeEmail = (value: unknown) => {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (!normalized || !normalized.includes("@")) {
+    return null;
+  }
+
+  return normalized;
+};
+
+const resolveIdentityEmail = (identity: any) => {
+  for (const key of emailClaimKeys) {
+    const email = normalizeEmail(identity?.[key]);
+    if (email) {
+      return email;
+    }
+  }
+
+  return null;
+};
+
 const parseName = (name?: string | null) => {
   const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
   if (!parts.length) {
@@ -38,7 +70,21 @@ export const findUserByIdentity = async (ctx: any, identity: any) => {
     }
   }
 
-  const email = identity.email?.toLowerCase();
+  const clerkSubject = identity.subject;
+  if (clerkSubject) {
+    const bySubject = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_subject", (q: any) =>
+        q.eq("clerk_subject", clerkSubject),
+      )
+      .unique();
+
+    if (bySubject) {
+      return bySubject;
+    }
+  }
+
+  const email = resolveIdentityEmail(identity);
   if (!email) {
     return null;
   }
@@ -74,7 +120,7 @@ export const upsertUserFromIdentity = async (ctx: any, identity: any) => {
   const now = Date.now();
   const tokenIdentifier = identity.tokenIdentifier;
   const clerkSubject = identity.subject;
-  const email = identity.email?.toLowerCase();
+  const email = resolveIdentityEmail(identity);
 
   if (!email) {
     throw new ConvexError("Missing email in auth token");
@@ -91,6 +137,10 @@ export const upsertUserFromIdentity = async (ctx: any, identity: any) => {
 
     if (!existing.clerk_subject && clerkSubject) {
       patch.clerk_subject = clerkSubject;
+    }
+
+    if (existing.email !== email) {
+      patch.email = email;
     }
 
     if (Object.keys(patch).length > 1) {
