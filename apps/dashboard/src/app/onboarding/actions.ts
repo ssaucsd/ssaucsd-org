@@ -48,6 +48,10 @@ export async function completeOnboarding(
     };
   }
 
+  const primaryEmail =
+    user.primaryEmailAddress?.emailAddress ??
+    user.emailAddresses[0]?.emailAddress;
+
   const profile = await convexMutation<{ profile: { id: string } }>(
     "users:completeOnboarding",
     {
@@ -55,6 +59,9 @@ export async function completeOnboarding(
       instrument: validatedFields.data.instrument,
       major: validatedFields.data.major,
       graduation_year: validatedFields.data.graduation_year,
+      ...(primaryEmail ? { fallback_email: primaryEmail } : {}),
+      ...(user.firstName ? { fallback_first_name: user.firstName } : {}),
+      ...(user.lastName ? { fallback_last_name: user.lastName } : {}),
     },
   );
 

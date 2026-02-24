@@ -167,6 +167,9 @@ export const completeOnboarding = mutation({
     instrument: v.string(),
     major: v.string(),
     graduation_year: v.number(),
+    fallback_email: v.optional(v.string()),
+    fallback_first_name: v.optional(v.string()),
+    fallback_last_name: v.optional(v.string()),
   },
   returns: v.object({
     profile: v.object({
@@ -184,7 +187,11 @@ export const completeOnboarding = mutation({
   }),
   handler: async (ctx, args) => {
     const identity = await requireIdentity(ctx);
-    const user = await upsertUserFromIdentity(ctx, identity);
+    const user = await upsertUserFromIdentity(ctx, identity, {
+      email: args.fallback_email,
+      firstName: args.fallback_first_name,
+      lastName: args.fallback_last_name,
+    });
 
     await ctx.db.patch(user._id, {
       preferred_name: args.preferred_name.trim(),
