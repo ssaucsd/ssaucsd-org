@@ -8,6 +8,10 @@ import { getAllEvents } from "@/lib/events";
 import { CalendarX } from "lucide-react";
 
 const events = await getAllEvents();
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=900, stale-while-revalidate=3600",
+);
 ---
 
 <Layout

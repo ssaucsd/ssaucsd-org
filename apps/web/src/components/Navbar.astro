@@ -1,0 +1,136 @@
+---
+const NAV_ITEMS = [
+  { label: "About Us", href: "/about" },
+  { label: "Events", href: "/events" },
+  { label: "Contact", href: "#contact" },
+];
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+---
+
+<div
+  class="fixed top-0 z-50 bg-background w-full border-b-3 border-primary flex flex-col"
+  data-navbar-root
+  data-current-path={currentPath}
+>
+  <div class="flex w-full justify-between items-center p-2">
+    <a
+      class="flex flex-row items-center text-2xl font-black mr-2"
+      href="/"
+      data-nav-link
+    >
+      SSA at UC San Diego
+    </a>
+
+    <nav class="hidden md:flex ml-auto mr-4 items-center gap-5">
+      {
+        NAV_ITEMS.map((item) => (
+          <a
+            class="text-lg font-bold hover:text-primary transition-colors"
+            href={item.href}
+            data-nav-link
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a
+        class="text-lg bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 h-10 px-4 py-2 ml-1"
+        href="https://members.ssaucsd.org"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Member Login
+      </a>
+    </nav>
+
+    <button
+      class="md:hidden p-2 mr-2"
+      aria-label="Toggle menu"
+      data-menu-toggle
+    >
+      <span class="text-3xl leading-none" data-menu-open-icon>&#9776;</span>
+      <span class="text-3xl leading-none hidden" data-menu-close-icon>&times;</span>
+    </button>
+  </div>
+
+  <div
+    class="md:hidden overflow-hidden transition-all duration-300 ease-in-out max-h-0 opacity-0"
+    data-mobile-menu
+  >
+    <div class="flex flex-col items-center gap-4 py-4 border-t border-dashed border-primary/20">
+      {
+        NAV_ITEMS.map((item) => (
+          <a
+            href={item.href}
+            class="text-lg font-bold hover:text-primary transition-colors"
+            data-nav-link
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a
+        href="https://members.ssaucsd.org"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-lg bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 px-4 py-2 mt-2"
+      >
+        Member Login
+      </a>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector("[data-navbar-root]");
+    if (!root) {
+      return;
+    }
+
+    const currentPath = root.getAttribute("data-current-path") ?? window.location.pathname;
+    const menu = root.querySelector("[data-mobile-menu]");
+    const toggle = root.querySelector("[data-menu-toggle]");
+    const openIcon = root.querySelector("[data-menu-open-icon]");
+    const closeIcon = root.querySelector("[data-menu-close-icon]");
+
+    if (!menu || !toggle || !openIcon || !closeIcon) {
+      return;
+    }
+
+    let isOpen = false;
+
+    const setMenuOpen = (next) => {
+      isOpen = next;
+      menu.classList.toggle("max-h-96", next);
+      menu.classList.toggle("opacity-100", next);
+      menu.classList.toggle("max-h-0", !next);
+      menu.classList.toggle("opacity-0", !next);
+      openIcon.classList.toggle("hidden", next);
+      closeIcon.classList.toggle("hidden", !next);
+    };
+
+    toggle.addEventListener("click", () => {
+      setMenuOpen(!isOpen);
+    });
+
+    root.querySelectorAll("[data-nav-link]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const href = link.getAttribute("href") ?? "";
+        setMenuOpen(false);
+
+        if (!href.startsWith("/") || href !== currentPath) {
+          return;
+        }
+
+        event.preventDefault();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+  })();
+</script>

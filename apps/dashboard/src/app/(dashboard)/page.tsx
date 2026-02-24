@@ -17,10 +17,12 @@ import {
 import { HomeEventCard } from "@/components/HomeEventCard";
 
 export default async function Page() {
-  const firstName = await getFirstName();
-  const events = await getUpcomingEventsWithRsvp();
-  const resources = await getPinnedResourcesWithTags();
-  const rsvpEvents = await getUserRsvpEvents();
+  const [firstName, events, resources, rsvpEvents] = await Promise.all([
+    getFirstName(),
+    getUpcomingEventsWithRsvp(),
+    getPinnedResourcesWithTags(),
+    getUserRsvpEvents(),
+  ]);
 
   return (
     <div className="flex flex-col min-h-screen w-full p-4 gap-8">

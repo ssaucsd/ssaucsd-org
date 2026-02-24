@@ -2,6 +2,7 @@ import "server-only";
 
 import { auth } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
+import { cache } from "react";
 
 const convexUrl =
   process.env.NEXT_PUBLIC_CONVEX_URL ?? process.env.CONVEX_URL ?? "";
@@ -72,7 +73,17 @@ const validateConvexJwt = (token: string) => {
   }
 };
 
-const createClient = async ({ requireAuth } = { requireAuth: false }) => {
+const createPublicClient = cache(async () => {
+  if (!convexUrl) {
+    throw new Error(
+      "Convex URL is not configured. Set NEXT_PUBLIC_CONVEX_URL (or CONVEX_URL).",
+    );
+  }
+
+  return new ConvexHttpClient(convexUrl);
+});
+
+const createAuthedClient = cache(async () => {
   if (!convexUrl) {
     throw new Error(
       "Convex URL is not configured. Set NEXT_PUBLIC_CONVEX_URL (or CONVEX_URL).",
@@ -80,10 +91,6 @@ const createClient = async ({ requireAuth } = { requireAuth: false }) => {
   }
 
   const client = new ConvexHttpClient(convexUrl);
-
-  if (!requireAuth) {
-    return client;
-  }
 
   const session = await auth();
   const token = await session.getToken({ template: "convex" });
@@ -98,13 +105,13 @@ const createClient = async ({ requireAuth } = { requireAuth: false }) => {
   client.setAuth(token);
 
   return client;
-};
+});
 
 export const convexQuery = async <T = unknown>(
   name: string,
   args: Record<string, unknown> = {},
 ): Promise<T> => {
-  const client = await createClient({ requireAuth: true });
+  const client = await createAuthedClient();
   try {
     return (await client.query(name as never, args as never)) as T;
   } catch (error) {
@@ -117,7 +124,7 @@ export const convexMutation = async <T = unknown>(
   name: string,
   args: Record<string, unknown> = {},
 ): Promise<T> => {
-  const client = await createClient({ requireAuth: true });
+  const client = await createAuthedClient();
   try {
     return (await client.mutation(name as never, args as never)) as T;
   } catch (error) {
@@ -130,6 +137,6 @@ export const convexPublicQuery = async <T = unknown>(
   name: string,
   args: Record<string, unknown> = {},
 ): Promise<T> => {
-  const client = await createClient();
+  const client = await createPublicClient();
   return client.query(name as never, args as never) as Promise<T>;
 };

@@ -40,10 +40,12 @@ export default defineSchema({
     end_time: v.string(),
     image_url: v.string(),
     is_all_day: v.boolean(),
+    going_count: v.optional(v.number()),
     created_at: v.number(),
     updated_at: v.number(),
   })
     .index("by_start_time", ["start_time"])
+    .index("by_end_time", ["end_time"])
     .index("by_legacy_supabase_id", ["legacy_supabase_id"]),
 
   resources: defineTable({

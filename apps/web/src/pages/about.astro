@@ -2,7 +2,7 @@
 import { getImage } from "astro:assets";
 import Layout from "@/layouts/Layout.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
-import AboutHero from "@/components/AboutHero";
+import AboutHero from "@/components/AboutHero.astro";
 import BoardMemberCard from "@/components/BoardMemberCard.astro";
 import { boardMembers } from "@/data/board";
 import { ArrowRight, Instagram, Mail } from "lucide-react";
@@ -22,7 +22,7 @@ const DiscordIconSvg = `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3
     <Breadcrumb items={[{ name: "About Us" }]} />
   </div>
 
-  <AboutHero imageSrc={aboutHeroImage.src} client:visible />
+  <AboutHero imageSrc={aboutHeroImage.src} />
 
   <!-- Mission Section -->
   <section

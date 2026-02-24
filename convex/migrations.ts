@@ -120,6 +120,7 @@ export const importSnapshot = mutation({
         end_time: String(event.end_time ?? new Date().toISOString()),
         image_url: String(event.image_url ?? ""),
         is_all_day: Boolean(event.is_all_day),
+        going_count: 0,
         created_at: isoToMillis(event.created_at),
         updated_at: isoToMillis(event.updated_at),
       });
@@ -220,6 +221,26 @@ export const importSnapshot = mutation({
       rsvpCount += 1;
     }
 
+    const allRsvps = await ctx.db.query("rsvps").collect();
+    const goingCountByEvent = allRsvps.reduce((counts, rsvp: any) => {
+      if (rsvp.status !== "going") {
+        return counts;
+      }
+
+      counts.set(rsvp.event_id, (counts.get(rsvp.event_id) ?? 0) + 1);
+      return counts;
+    }, new Map<any, number>());
+
+    const allEvents = await ctx.db.query("events").collect();
+    await Promise.all(
+      allEvents.map((event: any) =>
+        ctx.db.patch(event._id, {
+          going_count: goingCountByEvent.get(event._id) ?? 0,
+          updated_at: Date.now(),
+        }),
+      ),
+    );
+
     return {
       users: profiles.length,
       events: events.length,
@@ -228,6 +249,54 @@ export const importSnapshot = mutation({
       resource_tags: resourceTagCount,
       rsvps: rsvpCount,
     };
+  },
+});
+
+export const backfillEventGoingCounts = mutation({
+  args: {
+    secret: v.string(),
+  },
+  returns: v.object({
+    updated: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    const expected = process.env.MIGRATION_SECRET;
+    if (!expected || args.secret !== expected) {
+      throw new ConvexError("Invalid migration secret");
+    }
+
+    const [events, rsvps] = await Promise.all([
+      ctx.db.query("events").collect(),
+      ctx.db.query("rsvps").collect(),
+    ]);
+
+    const goingCountByEvent = rsvps.reduce((counts, rsvp: any) => {
+      if (rsvp.status !== "going") {
+        return counts;
+      }
+
+      counts.set(rsvp.event_id, (counts.get(rsvp.event_id) ?? 0) + 1);
+      return counts;
+    }, new Map<any, number>());
+
+    let updated = 0;
+
+    for (const event of events) {
+      const nextCount = goingCountByEvent.get(event._id) ?? 0;
+      const currentCount = event.going_count ?? 0;
+
+      if (currentCount === nextCount) {
+        continue;
+      }
+
+      await ctx.db.patch(event._id, {
+        going_count: nextCount,
+        updated_at: Date.now(),
+      });
+      updated += 1;
+    }
+
+    return { updated };
   },
 });
 

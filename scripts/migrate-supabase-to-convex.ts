@@ -16,6 +16,27 @@ const readTable = async (client: Client, table: string) => {
   return result.rows;
 };
 
+const normalizeForConvex = (value: unknown): unknown => {
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(normalizeForConvex);
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nested]) => [
+        key,
+        normalizeForConvex(nested),
+      ]),
+    );
+  }
+
+  return value;
+};
+
 const main = async () => {
   const supabaseDbUrl = required("SUPABASE_DB_URL");
   const convexUrl = required("CONVEX_URL");
@@ -38,14 +59,14 @@ const main = async () => {
         readTable(pgClient, "rsvps"),
       ]);
 
-    const snapshot = {
+    const snapshot = normalizeForConvex({
       profiles,
       events,
       resources,
       tags,
       resource_tags,
       rsvps,
-    };
+    });
 
     const snapshotPath = process.env.MIGRATION_SNAPSHOT_PATH;
     if (snapshotPath) {

@@ -68,8 +68,7 @@ export const adminActions = [
 ];
 
 export async function AppSidebar() {
-  const isAdmin = await getIsAdmin();
-  const user = await getUserProfile();
+  const [isAdmin, user] = await Promise.all([getIsAdmin(), getUserProfile()]);
 
   return (
     <Sidebar collapsible="icon">

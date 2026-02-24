@@ -35,18 +35,14 @@ const generateSlug = (name: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-const getTagsForResource = async (ctx: any, resourceId: any) => {
-  const links = await ctx.db
-    .query("resource_tags")
-    .withIndex("by_resource_id", (q: any) => q.eq("resource_id", resourceId))
-    .collect();
+const sortTags = (tags: any[]) =>
+  tags.sort((a, b) => {
+    if (a.display_order !== b.display_order) {
+      return a.display_order - b.display_order;
+    }
 
-  const tags = await Promise.all(
-    links.map((link: any) => ctx.db.get(link.tag_id)),
-  );
-
-  return tags.filter(Boolean).map(toTag);
-};
+    return a.name.localeCompare(b.name);
+  });
 
 const getAllResourcesSorted = async (ctx: any) => {
   const resources = await ctx.db.query("resources").collect();
@@ -58,6 +54,45 @@ const getAllResourcesSorted = async (ctx: any) => {
 
     return a.name.localeCompare(b.name);
   });
+};
+
+const buildResourcesWithTags = async (ctx: any, resources: any[]) => {
+  if (!resources.length) {
+    return [];
+  }
+
+  const resourceIdSet = new Set(resources.map((resource) => resource._id));
+
+  const [links, tags] = await Promise.all([
+    ctx.db.query("resource_tags").collect(),
+    ctx.db.query("tags").withIndex("by_display_order").collect(),
+  ]);
+
+  const tagsById = sortTags(tags.map(toTag)).reduce((map, tag) => {
+    map.set(tag.id, tag);
+    return map;
+  }, new Map<any, any>());
+
+  const tagsByResourceId = links.reduce((map, link: any) => {
+    if (!resourceIdSet.has(link.resource_id)) {
+      return map;
+    }
+
+    const tag = tagsById.get(link.tag_id);
+    if (!tag) {
+      return map;
+    }
+
+    const existing = map.get(link.resource_id) ?? [];
+    existing.push(tag);
+    map.set(link.resource_id, existing);
+    return map;
+  }, new Map<any, any[]>());
+
+  return resources.map((resource: any) => ({
+    ...toResource(resource),
+    tags: sortTags([...(tagsByResourceId.get(resource._id) ?? [])]),
+  }));
 };
 
 export const getResources = query({
@@ -93,13 +128,7 @@ export const getTags = query({
       .withIndex("by_display_order")
       .collect();
 
-    return tags.map(toTag).sort((a, b) => {
-      if (a.display_order !== b.display_order) {
-        return a.display_order - b.display_order;
-      }
-
-      return a.name.localeCompare(b.name);
-    });
+    return sortTags(tags.map(toTag));
   },
 });
 
@@ -108,13 +137,7 @@ export const getResourcesWithTags = query({
   returns: v.array(resourceWithTagsValidator),
   handler: async (ctx) => {
     const resources = await getAllResourcesSorted(ctx);
-
-    return Promise.all(
-      resources.map(async (resource: any) => ({
-        ...toResource(resource),
-        tags: await getTagsForResource(ctx, resource._id),
-      })),
-    );
+    return buildResourcesWithTags(ctx, resources);
   },
 });
 
@@ -131,12 +154,7 @@ export const getPinnedResourcesWithTags = query({
       a.name.localeCompare(b.name),
     );
 
-    return Promise.all(
-      sorted.map(async (resource: any) => ({
-        ...toResource(resource),
-        tags: await getTagsForResource(ctx, resource._id),
-      })),
-    );
+    return buildResourcesWithTags(ctx, sorted);
   },
 });
 

@@ -3,7 +3,7 @@ export const prerender = false;
 
 import { getImage } from "astro:assets";
 import Layout from "@/layouts/Layout.astro";
-import Hero from "@/components/Hero";
+import Hero from "@/components/Hero.astro";
 import InitiativeCard from "@/components/InitiativeCard.astro";
 import EventCard from "@/components/EventCard.astro";
 import { getEvents } from "@/lib/events";
@@ -11,6 +11,10 @@ import { CalendarX } from "lucide-react";
 import heroImageSrc from "@/assets/hero.webp";
 
 const events = await getEvents(4);
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=900, stale-while-revalidate=3600",
+);
 
 // Generate optimized hero image
 const heroImage = await getImage({ src: heroImageSrc, width: 600, height: 400 });
@@ -74,7 +78,7 @@ const organizationSchema = {
 <Layout title="SSA at UCSD">
   <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
 
-  <Hero imageSrc={heroImage.src} client:visible />
+  <Hero imageSrc={heroImage.src} />
 
   <!-- Initiatives Section -->
   <div id="initiatives" class="w-full py-24 px-6 bg-background">

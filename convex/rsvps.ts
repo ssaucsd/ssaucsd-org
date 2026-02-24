@@ -12,6 +12,24 @@ const rsvpStatus = v.union(
   v.literal("not_going"),
 );
 
+const isGoing = (status: "going" | "maybe" | "not_going") => status === "going";
+
+const updateEventGoingCount = async (ctx: any, eventId: any, delta: number) => {
+  if (!delta) {
+    return;
+  }
+
+  const event = await ctx.db.get(eventId);
+  if (!event) {
+    throw new ConvexError("Event not found");
+  }
+
+  await ctx.db.patch(eventId, {
+    going_count: Math.max(0, (event.going_count ?? 0) + delta),
+    updated_at: Date.now(),
+  });
+};
+
 export const upsertCurrentUserRsvp = mutation({
   args: {
     event_id: v.id("events"),
@@ -39,6 +57,9 @@ export const upsertCurrentUserRsvp = mutation({
       .unique();
 
     if (existing) {
+      const delta =
+        Number(isGoing(args.status)) - Number(isGoing(existing.status));
+      await updateEventGoingCount(ctx, args.event_id, delta);
       await ctx.db.patch(existing._id, {
         status: args.status,
       });
@@ -51,6 +72,11 @@ export const upsertCurrentUserRsvp = mutation({
       status: args.status,
       created_at: Date.now(),
     });
+    await updateEventGoingCount(
+      ctx,
+      args.event_id,
+      Number(isGoing(args.status)),
+    );
 
     return null;
   },
@@ -83,6 +109,11 @@ export const removeCurrentUserRsvp = mutation({
       return null;
     }
 
+    await updateEventGoingCount(
+      ctx,
+      args.event_id,
+      -Number(isGoing(existing.status)),
+    );
     await ctx.db.delete(existing._id);
 
     return null;
@@ -161,17 +192,10 @@ export const getCurrentUserRsvpEvents = query({
           return null;
         }
 
-        const allEventRsvps = await ctx.db
-          .query("rsvps")
-          .withIndex("by_event_id", (q: any) => q.eq("event_id", event._id))
-          .collect();
-
         return {
           ...toEvent(event),
           rsvp_status: rsvp.status,
-          rsvp_count: allEventRsvps.filter(
-            (eventRsvp: any) => eventRsvp.status === "going",
-          ).length,
+          rsvp_count: event.going_count ?? 0,
         };
       }),
     );

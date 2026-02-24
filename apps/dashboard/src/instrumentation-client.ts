@@ -6,6 +6,8 @@ import * as Sentry from "@sentry/nextjs";
 
 import posthog from "posthog-js";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
   api_host: "/dih",
   ui_host: "https://us.posthog.com",
@@ -13,10 +15,10 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
   defaults: "2025-05-24",
   // Enables capturing unhandled exceptions via Error Tracking
   capture_exceptions: true,
-  // Enable surveys
-  disable_surveys: false,
-  // Turn on debug in development mode
-  debug: process.env.NODE_ENV === "development",
+  // Disable surveys in production to lower client overhead.
+  disable_surveys: isProduction,
+  // Turn on debug in development mode.
+  debug: !isProduction,
 });
 
 Sentry.init({
@@ -26,17 +28,17 @@ Sentry.init({
   integrations: [Sentry.replayIntegration()],
 
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  tracesSampleRate: isProduction ? 0.2 : 1,
   // Enable logs to be sent to Sentry
   enableLogs: true,
 
   // Define how likely Replay events are sampled.
   // This sets the sample rate to be 10%. You may want this to be 100% while
   // in development and sample at a lower rate in production
-  replaysSessionSampleRate: 0.1,
+  replaysSessionSampleRate: isProduction ? 0.02 : 0.1,
 
   // Define how likely Replay events are sampled when an error occurs.
-  replaysOnErrorSampleRate: 1.0,
+  replaysOnErrorSampleRate: isProduction ? 0.5 : 1.0,
 
   // Enable sending user PII (Personally Identifiable Information)
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii

@@ -1,10 +1,6 @@
 import "server-only";
 
-import {
-  convexMutation,
-  convexPublicQuery,
-  convexQuery,
-} from "./convex/server";
+import { convexPublicQuery, convexQuery } from "./convex/server";
 
 export type Event = {
   id: string;
@@ -73,17 +69,7 @@ const withFallback = async <T>(run: () => Promise<T>, fallback: T) => {
   }
 };
 
-const syncCurrentUser = async () => {
-  try {
-    await convexMutation("users:syncCurrentUser");
-  } catch {
-    // No-op for unauthenticated requests.
-  }
-};
-
 export const getFirstName = async () => {
-  await syncCurrentUser();
-
   return withFallback(
     () => convexQuery("users:getFirstName") as Promise<string | null>,
     null,
@@ -91,8 +77,6 @@ export const getFirstName = async () => {
 };
 
 export const getUserProfile = async () => {
-  await syncCurrentUser();
-
   return withFallback(
     () => convexQuery("users:getCurrentProfile") as Promise<Profile | null>,
     null,
@@ -100,8 +84,6 @@ export const getUserProfile = async () => {
 };
 
 export const getIsAdmin = async () => {
-  await syncCurrentUser();
-
   return withFallback(
     () => convexQuery("users:getIsAdmin") as Promise<boolean>,
     false,
@@ -121,8 +103,6 @@ export const getUpcomingEvents = async () =>
   );
 
 export const getUpcomingEventsWithRsvp = async () => {
-  await syncCurrentUser();
-
   return withFallback(
     () => convexQuery("events:getUpcomingWithRsvp") as Promise<EventWithRsvp[]>,
     [],

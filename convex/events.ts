@@ -41,6 +41,17 @@ const getRsvpsByEvent = async (ctx: any, eventId: any) =>
     .withIndex("by_event_id", (q: any) => q.eq("event_id", eventId))
     .collect();
 
+const sortEventsByStartTime = (events: any[]) =>
+  events.sort((a, b) => a.start_time.localeCompare(b.start_time));
+
+const getUpcomingEvents = async (ctx: any, now: string) =>
+  sortEventsByStartTime(
+    await ctx.db
+      .query("events")
+      .withIndex("by_end_time", (q: any) => q.gte("end_time", now))
+      .collect(),
+  );
+
 export const getAll = query({
   args: {},
   returns: v.array(eventValidator),
@@ -59,12 +70,8 @@ export const getUpcoming = query({
   returns: v.array(eventValidator),
   handler: async (ctx) => {
     const now = new Date().toISOString();
-    const events = await ctx.db
-      .query("events")
-      .withIndex("by_start_time")
-      .collect();
-
-    return events.filter((event: any) => event.start_time >= now).map(toEvent);
+    const events = await getUpcomingEvents(ctx, now);
+    return events.map(toEvent);
   },
 });
 
@@ -75,29 +82,25 @@ export const getUpcomingWithRsvp = query({
     const now = new Date().toISOString();
     const identity = await ctx.auth.getUserIdentity();
     const user = identity ? await findUserByIdentity(ctx, identity) : null;
+    const events = await getUpcomingEvents(ctx, now);
 
-    const events = await ctx.db
-      .query("events")
-      .withIndex("by_start_time")
-      .collect();
+    const userRsvps = user
+      ? await ctx.db
+          .query("rsvps")
+          .withIndex("by_user_id", (q: any) => q.eq("user_id", user._id))
+          .collect()
+      : [];
 
-    const upcoming = events.filter((event: any) => event.start_time >= now);
+    const rsvpByEventId = userRsvps.reduce((map, rsvp: any) => {
+      map.set(rsvp.event_id, rsvp.status);
+      return map;
+    }, new Map<any, "going" | "maybe" | "not_going">());
 
-    return Promise.all(
-      upcoming.map(async (event: any) => {
-        const rsvps = await getRsvpsByEvent(ctx, event._id);
-        const currentUserRsvp = user
-          ? rsvps.find((rsvp: any) => rsvp.user_id === user._id)
-          : null;
-
-        return {
-          ...toEvent(event),
-          rsvp_status: currentUserRsvp?.status ?? null,
-          rsvp_count: rsvps.filter((rsvp: any) => rsvp.status === "going")
-            .length,
-        };
-      }),
-    );
+    return events.map((event: any) => ({
+      ...toEvent(event),
+      rsvp_status: rsvpByEventId.get(event._id) ?? null,
+      rsvp_count: event.going_count ?? 0,
+    }));
   },
 });
 
@@ -123,12 +126,7 @@ export const getForWeb = query({
   returns: v.array(eventValidator),
   handler: async (ctx, args) => {
     const now = new Date().toISOString();
-    const events = await ctx.db
-      .query("events")
-      .withIndex("by_start_time")
-      .collect();
-
-    const upcoming = events.filter((event: any) => event.end_time > now);
+    const upcoming = await getUpcomingEvents(ctx, now);
 
     if (args.limit) {
       return upcoming.slice(0, args.limit).map(toEvent);
@@ -155,6 +153,7 @@ export const createByAdmin = mutation({
     return ctx.db.insert("events", {
       ...args,
       description: args.description ?? undefined,
+      going_count: 0,
       created_at: Date.now(),
       updated_at: Date.now(),
     });
