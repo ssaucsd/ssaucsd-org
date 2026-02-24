@@ -50,13 +50,14 @@ export default async function DashboardLayout({
   const primaryEmail =
     user?.primaryEmailAddress?.emailAddress ??
     user?.emailAddresses?.[0]?.emailAddress;
-
-  if (!primaryEmail) {
-    redirect("/auth?error=missing_email");
-  }
+  const fallbackProfile = {
+    ...(primaryEmail ? { fallback_email: primaryEmail } : {}),
+    ...(user?.firstName ? { fallback_first_name: user.firstName } : {}),
+    ...(user?.lastName ? { fallback_last_name: user.lastName } : {}),
+  };
 
   try {
-    await convexMutation("users:syncCurrentUser");
+    await convexMutation("users:syncCurrentUser", fallbackProfile);
   } catch (error) {
     console.error("Failed to sync current user in dashboard layout", error);
     redirect(`/auth?error=${getAuthErrorCode(error)}`);

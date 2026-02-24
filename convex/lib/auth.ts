@@ -21,15 +21,42 @@ const normalizeEmail = (value: unknown) => {
   return normalized;
 };
 
-const resolveIdentityEmail = (identity: any) => {
+const normalizeName = (value: unknown) => {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim();
+  if (!normalized) {
+    return null;
+  }
+
+  return normalized;
+};
+
+const resolveEmailFromClaims = (claims: any) => {
   for (const key of emailClaimKeys) {
-    const email = normalizeEmail(identity?.[key]);
+    const email = normalizeEmail(claims?.[key]);
     if (email) {
       return email;
     }
   }
 
   return null;
+};
+
+const resolveIdentityEmail = (identity: any, fallbackEmail?: string | null) => {
+  const emailFromIdentity = resolveEmailFromClaims(identity);
+  if (emailFromIdentity) {
+    return emailFromIdentity;
+  }
+
+  const emailFromNestedClaims = resolveEmailFromClaims(identity?.claims);
+  if (emailFromNestedClaims) {
+    return emailFromNestedClaims;
+  }
+
+  return normalizeEmail(fallbackEmail);
 };
 
 const parseName = (name?: string | null) => {
@@ -56,7 +83,11 @@ export const requireIdentity = async (ctx: any) => {
   return identity;
 };
 
-export const findUserByIdentity = async (ctx: any, identity: any) => {
+export const findUserByIdentity = async (
+  ctx: any,
+  identity: any,
+  fallbackEmail?: string | null,
+) => {
   if (identity.tokenIdentifier) {
     const byToken = await ctx.db
       .query("users")
@@ -84,7 +115,7 @@ export const findUserByIdentity = async (ctx: any, identity: any) => {
     }
   }
 
-  const email = resolveIdentityEmail(identity);
+  const email = resolveIdentityEmail(identity, fallbackEmail);
   if (!email) {
     return null;
   }
@@ -116,17 +147,29 @@ export const requireAdmin = async (ctx: any) => {
   return { identity, user };
 };
 
-export const upsertUserFromIdentity = async (ctx: any, identity: any) => {
+export const upsertUserFromIdentity = async (
+  ctx: any,
+  identity: any,
+  fallbackProfile?: {
+    email?: string | null;
+    firstName?: string | null;
+    lastName?: string | null;
+  },
+) => {
   const now = Date.now();
   const tokenIdentifier = identity.tokenIdentifier;
   const clerkSubject = identity.subject;
-  const email = resolveIdentityEmail(identity);
+  const email = resolveIdentityEmail(identity, fallbackProfile?.email);
 
   if (!email) {
     throw new ConvexError("Missing email in auth token");
   }
 
-  const existing = await findUserByIdentity(ctx, identity);
+  const existing = await findUserByIdentity(
+    ctx,
+    identity,
+    fallbackProfile?.email,
+  );
 
   if (existing) {
     const patch: Record<string, unknown> = { updated_at: now };
@@ -150,8 +193,12 @@ export const upsertUserFromIdentity = async (ctx: any, identity: any) => {
     return (await ctx.db.get(existing._id)) ?? existing;
   }
 
-  const givenName = identity.givenName ?? identity.given_name;
-  const familyName = identity.familyName ?? identity.family_name;
+  const givenName =
+    normalizeName(identity.givenName ?? identity.given_name) ??
+    normalizeName(fallbackProfile?.firstName);
+  const familyName =
+    normalizeName(identity.familyName ?? identity.family_name) ??
+    normalizeName(fallbackProfile?.lastName);
   const parsed = parseName(identity.name);
 
   const userId = await ctx.db.insert("users", {

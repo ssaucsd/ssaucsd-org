@@ -9,7 +9,11 @@ import {
 } from "./lib/auth";
 
 export const syncCurrentUser = mutation({
-  args: {},
+  args: {
+    fallback_email: v.optional(v.string()),
+    fallback_first_name: v.optional(v.string()),
+    fallback_last_name: v.optional(v.string()),
+  },
   returns: v.object({
     profile: v.object({
       id: v.id("users"),
@@ -24,9 +28,13 @@ export const syncCurrentUser = mutation({
       is_onboarded: v.boolean(),
     }),
   }),
-  handler: async (ctx) => {
+  handler: async (ctx, args) => {
     const identity = await requireIdentity(ctx);
-    const user = await upsertUserFromIdentity(ctx, identity);
+    const user = await upsertUserFromIdentity(ctx, identity, {
+      email: args.fallback_email,
+      firstName: args.fallback_first_name,
+      lastName: args.fallback_last_name,
+    });
     return { profile: toProfile(user) };
   },
 });
