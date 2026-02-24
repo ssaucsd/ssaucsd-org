@@ -1,46 +1,32 @@
-# Astro Starter Kit: Basics
+# SSA UCSD Web
 
-```sh
-bun create astro@latest -- --template basics
+Public Astro website for ssaucsd.org. Event data is read from Convex.
+
+## Setup
+
+From monorepo root:
+
+```bash
+bun install
+cp apps/web/.env.example apps/web/.env
+bun run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Env
 
-## 🚀 Project Structure
+- `PUBLIC_CONVEX_URL`
 
-Inside of your Astro project, you'll see the following folders and files:
+## Commands
 
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```bash
+bun run dev
+bun run build
+bun run preview
+bun run typecheck
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Key Paths
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command               | Action                                           |
-| :-------------------- | :----------------------------------------------- |
-| `bun install`         | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- `src/lib/events.ts` - Convex-backed event data helpers
+- `src/pages/` - Astro routes
+- `src/components/` - UI components

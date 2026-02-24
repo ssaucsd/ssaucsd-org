@@ -1,10 +1,11 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { convexMutation } from "@/lib/convex/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getPostHogClient } from "@/lib/posthog-server";
+import { currentUser } from "@clerk/nextjs/server";
 
 const onboardingSchema = z.object({
   preferred_name: z.string().min(1, "Preferred name is required"),
@@ -28,11 +29,7 @@ export async function completeOnboarding(
   prevState: ActionState,
   formData: FormData,
 ): Promise<ActionState> {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser();
 
   if (!user) {
     return { error: "Not authenticated" };
@@ -51,29 +48,22 @@ export async function completeOnboarding(
     };
   }
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({
+  const profile = await convexMutation<{ profile: { id: string } }>(
+    "users:completeOnboarding",
+    {
       preferred_name: validatedFields.data.preferred_name,
       instrument: validatedFields.data.instrument,
       major: validatedFields.data.major,
       graduation_year: validatedFields.data.graduation_year,
-      is_onboarded: true,
-    })
-    .eq("id", user.id);
+    },
+  );
 
-  if (error) {
-    return { error: "Failed to update profile: " + error.message };
-  }
-
-  // Track onboarding completed event
   const posthog = getPostHogClient();
 
-  // Update user identity with profile information
   posthog.identify({
-    distinctId: user.id,
+    distinctId: profile.profile.id,
     properties: {
-      email: user.email,
+      email: user.emailAddresses[0]?.emailAddress,
       preferred_name: validatedFields.data.preferred_name,
       instrument: validatedFields.data.instrument,
       major: validatedFields.data.major,
@@ -82,7 +72,7 @@ export async function completeOnboarding(
   });
 
   posthog.capture({
-    distinctId: user.id,
+    distinctId: profile.profile.id,
     event: "onboarding_completed",
     properties: {
       instrument: validatedFields.data.instrument,

@@ -1,8 +1,9 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { convexMutation } from "@/lib/convex/server";
 import { revalidatePath } from "next/cache";
 import { getPostHogClient } from "@/lib/posthog-server";
+import { currentUser } from "@clerk/nextjs/server";
 
 export type ActionState = {
   error?: string;
@@ -17,11 +18,8 @@ export type ActionState = {
 export async function updateProfile(
   prevState: ActionState,
   formData: FormData,
-): Promise<ActionState> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+) {
+  const user = await currentUser();
 
   if (!user) {
     return { error: "Not authenticated" };
@@ -41,45 +39,38 @@ export async function updateProfile(
     return { errors };
   }
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({
+  const updated = await convexMutation<{ profile: { id: string } }>(
+    "users:updateCurrentProfile",
+    {
       preferred_name,
       major,
-      graduation_year: parseInt(graduation_year),
-    })
-    .eq("id", user.id);
+      graduation_year: Number.parseInt(graduation_year, 10),
+    },
+  );
 
-  if (error) {
-    console.error("Profile update error:", error);
-    return { error: "Failed to update profile. Please try again." };
-  }
-
-  // Track profile updated event
   const posthog = getPostHogClient();
 
-  // Update user identity with new profile information
   posthog.identify({
-    distinctId: user.id,
+    distinctId: updated.profile.id,
     properties: {
-      email: user.email,
+      email: user.emailAddresses[0]?.emailAddress,
       preferred_name,
       major,
-      graduation_year: parseInt(graduation_year),
+      graduation_year: Number.parseInt(graduation_year, 10),
     },
   });
 
   posthog.capture({
-    distinctId: user.id,
+    distinctId: updated.profile.id,
     event: "profile_updated",
     properties: {
       major,
-      graduation_year: parseInt(graduation_year),
+      graduation_year: Number.parseInt(graduation_year, 10),
     },
   });
 
   await posthog.shutdown();
 
-  revalidatePath("/", "layout"); // Revalidate everything to update sidebar
+  revalidatePath("/", "layout");
   return { success: "Profile updated successfully!" };
 }

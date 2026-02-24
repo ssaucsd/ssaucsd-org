@@ -1,23 +1,28 @@
 {
   "name": "ssaucsd",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
+    "check": "bun run lint && bun run typecheck && bun run format:check",
+    "format": "bunx prettier --write .",
     "format:check": "turbo format:check",
-    "db:start": "supabase start",
-    "db:stop": "supabase stop",
-    "db:diff": "supabase db diff -f",
-    "db:migrate": "supabase migration new",
-    "db:reset": "supabase db reset",
-    "db:push": "supabase db push",
-    "db:generate-types": "supabase gen types typescript --local > packages/database/src/types.ts"
+    "convex:dev": "bunx convex dev",
+    "convex:deploy": "bunx convex deploy",
+    "data:migrate": "bun run scripts/migrate-supabase-to-convex.ts"
   },
   "devDependencies": {
-    "supabase": "^2.67.3",
+    "pg": "^8.18.0",
     "turbo": "^2.5.0"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "bun@1.3.6",
+  "dependencies": {
+    "convex": "^1.32.0"
+  }
 }

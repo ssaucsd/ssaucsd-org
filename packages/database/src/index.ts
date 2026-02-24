@@ -1,11 +1,10 @@
 export type {
-  Json,
-  Database,
-  Tables,
-  TablesInsert,
-  TablesUpdate,
-  Enums,
-  CompositeTypes,
+  Event,
+  Profile,
+  Resource,
+  Tag,
+  ResourceTag,
+  Rsvp,
+  Role,
+  RsvpStatus,
 } from "./types";
-
-export { Constants } from "./types";

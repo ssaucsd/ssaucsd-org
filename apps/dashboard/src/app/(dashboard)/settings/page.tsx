@@ -13,7 +13,7 @@ export default async function SettingsPage() {
   const profile = await getUserProfile();
 
   if (!profile) {
-    redirect("/login");
+    redirect("/auth");
   }
 
   return (

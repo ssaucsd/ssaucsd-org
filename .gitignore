@@ -35,3 +35,6 @@ coverage/
 *.local
 .cache/
 *.tsbuildinfo
+
+# Convex
+convex/_generated/

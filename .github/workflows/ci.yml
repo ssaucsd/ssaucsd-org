@@ -15,25 +15,31 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: 9.15.0
+          bun-version: 1.3.6
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: "pnpm"
+          node-version: 24
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun ci
+
+      - name: "Guardrail: no legacy package-manager references"
+        run: |
+          LEGACY_PATTERN="p"'npm|p'"npx|p"'npm-workspace|p'"npm-lock"
+          rg -n "$LEGACY_PATTERN" README.md apps packages .github \
+            && { echo "Found legacy package-manager references. Please migrate docs/config/scripts to Bun."; exit 1; } \
+            || true
 
       - name: Typecheck
-        run: pnpm typecheck
+        run: bun run typecheck
 
       - name: Lint
-        run: pnpm lint
+        run: bun run lint
 
       - name: Format check
-        run: pnpm format:check
+        run: bun run format:check

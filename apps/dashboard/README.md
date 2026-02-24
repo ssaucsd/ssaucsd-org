@@ -1,82 +1,45 @@
-# SSA UCSD Dashboard V2
+# SSA UCSD Dashboard
 
-A member and admin dashboard for SSA at UCSD built with Next.js 16, Supabase, and Tailwind CSS v4. Members can view events, browse resources, RSVP to events, and manage their profiles. Admins can manage events, resources, tags, and user roles.
+Next.js dashboard for SSA members/admins using Clerk authentication and Convex backend.
 
-## Tech Stack
+## Stack
 
-- **Frontend**: Next.js 16 (React 19), Tailwind CSS v4, shadcn/ui
-- **Backend**: Supabase (Auth, Postgres, RLS)
-- **File Uploads**: UploadThing
-- **Analytics**: PostHog, Sentry
+- Next.js 16 (React 19)
+- Clerk (Google sign-in)
+- Convex (queries, mutations, auth integration)
+- Tailwind CSS + shadcn/ui
+- UploadThing
+- PostHog + Sentry
 
 ## Setup
 
-1. **Install dependencies**
+From monorepo root:
 
-   ```bash
-   bun install
-   ```
-
-2. **Configure environment**
-   Copy `.env.example` to `.env` and fill in the required values:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-   - Google OAuth credentials for Supabase Auth
-
-3. **Start local Supabase**
-
-   ```bash
-   bun run db:start
-   ```
-
-   Studio UI available at http://127.0.0.1:54323
-
-4. **Run dev server**
-   ```bash
-   bun dev
-   ```
-
-## Development Workflow
-
-| Command                     | Description                             |
-| --------------------------- | --------------------------------------- |
-| `bun dev`                   | Start development server                |
-| `bun run lint`              | Run ESLint                              |
-| `bun run format:fix`        | Format code with Prettier               |
-| `bun run typecheck`         | Run TypeScript type checking            |
-| `bun run db:reset`          | Reset database (runs migrations + seed) |
-| `bun run db:migrate <name>` | Create new migration file               |
-| `bun run db:diff -f <name>` | Generate migration from schema changes  |
-| `bun run db:push`           | Push migrations to remote database      |
-
-## Key Files & Directories
-
-```
-src/
-├── app/
-│   ├── (auth)/           # Auth pages (login)
-│   ├── (dashboard)/      # Main dashboard pages
-│   │   ├── admin/        # Admin-only pages
-│   │   ├── events/       # Events listing
-│   │   ├── resources/    # Resources listing
-│   │   └── settings/     # User settings
-│   ├── onboarding/       # New user onboarding flow
-│   └── api/              # API routes (uploadthing)
-├── components/           # React components (shadcn/ui + custom)
-├── lib/
-│   ├── queries.ts        # Server actions for data fetching
-│   └── supabase/         # Supabase client setup (client.ts, server.ts)
-└── utils/                # Utility functions
-
-supabase/
-├── migrations/           # Database migrations (timestamped SQL)
-└── seed.sql              # Seed data for local development
+```bash
+bun install
+cp apps/dashboard/.env.example apps/dashboard/.env
+bun run dev
 ```
 
-## Database Schema
+## Required Env
 
-- **profiles** – User data (synced from Supabase Auth, includes role, instrument, major)
-- **events** – Organization events with RSVPs
-- **resources** – Member links and tools
-- **tags** / **resource_tags** – Resource categorization (many-to-many)
-- **rsvps** – Event RSVPs linked to profiles
+- `NEXT_PUBLIC_CONVEX_URL`
+- `CONVEX_URL`
+- `CONVEX_DEPLOY_KEY`
+- `CLERK_JWT_ISSUER_DOMAIN`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`
+- `NEXT_PUBLIC_POSTHOG_KEY`
+- `NEXT_PUBLIC_POSTHOG_HOST`
+- `NEXT_PUBLIC_SENTRY_DSN`
+- `SENTRY_AUTH_TOKEN`
+- `UPLOADTHING_TOKEN`
+
+## Key Paths
+
+- `src/lib/queries.ts` - Dashboard data access layer
+- `src/lib/convex/server.ts` - Server-side Convex client wrappers
+- `src/app/(dashboard)/` - Protected dashboard routes
+- `src/app/onboarding/` - First-login onboarding
+- `src/app/api/uploadthing/` - File upload routes
+- `../../convex/` - Convex schema/functions

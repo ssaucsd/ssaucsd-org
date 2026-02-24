@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 import { getIsAdmin } from "@/lib/queries";
+import { convexMutation } from "@/lib/convex/server";
 
 export type ActionResult = {
   success: boolean;
@@ -34,23 +34,18 @@ export async function updateUserProfile(
     return { success: false, error: "Valid role is required" };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("profiles")
-    .update({
-      first_name: firstName,
-      last_name: lastName,
-      preferred_name: preferredName || null,
-      instrument: instrument || null,
-      role,
-      major: major || null,
-      graduation_year: graduationYear ? parseInt(graduationYear, 10) : null,
-    })
-    .eq("id", id);
-
-  if (error) {
-    return { success: false, error: error.message };
-  }
+  await convexMutation("users:updateProfileByAdmin", {
+    id,
+    first_name: firstName,
+    last_name: lastName,
+    preferred_name: preferredName || null,
+    instrument: instrument || null,
+    role,
+    major: major || null,
+    graduation_year: graduationYear
+      ? Number.parseInt(graduationYear, 10)
+      : null,
+  });
 
   revalidatePath("/admin/users");
   return { success: true };
@@ -62,14 +57,7 @@ export async function deleteUserProfile(id: string): Promise<ActionResult> {
     return { success: false, error: "Unauthorized" };
   }
 
-  const supabase = await createClient();
-
-  // First delete from profiles table (this will cascade due to FK constraint, but we should be explicit)
-  const { error } = await supabase.from("profiles").delete().eq("id", id);
-
-  if (error) {
-    return { success: false, error: error.message };
-  }
+  await convexMutation("users:deleteProfileByAdmin", { id });
 
   revalidatePath("/admin/users");
   return { success: true };

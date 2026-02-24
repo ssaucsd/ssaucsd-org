@@ -1,79 +1,22 @@
 import "server-only";
 
-import { createClient } from "./supabase/server";
-import { Tables } from "@ssaucsd/database";
+import {
+  convexMutation,
+  convexPublicQuery,
+  convexQuery,
+} from "./convex/server";
 
-export type Event = Tables<"events">;
-
-export const getFirstName = async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("first_name")
-    .eq("id", user.id)
-    .single();
-
-  return profile?.first_name;
-};
-
-export const getUserProfile = async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  return profile;
-};
-
-export const getIsAdmin = async () => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return false;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  return profile?.role === "admin";
-};
-
-export const getEvents = async (): Promise<Event[] | null> => {
-  const supabase = await createClient();
-  const { data: events } = await supabase
-    .from("events")
-    .select("*")
-    .order("start_time", { ascending: true });
-  return events;
-};
-
-export const getUpcomingEvents = async (): Promise<Event[] | null> => {
-  const supabase = await createClient();
-  const now = new Date().toISOString();
-  const { data: events } = await supabase
-    .from("events")
-    .select("*")
-    .gte("start_time", now)
-    .order("start_time", { ascending: true });
-  return events;
+export type Event = {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string;
+  start_time: string;
+  end_time: string;
+  image_url: string;
+  is_all_day: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
 export type EventWithRsvp = Event & {
@@ -81,151 +24,39 @@ export type EventWithRsvp = Event & {
   rsvp_count: number;
 };
 
-export const getUpcomingEventsWithRsvp = async (): Promise<
-  EventWithRsvp[] | null
-> => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const now = new Date().toISOString();
-
-  const { data: events } = await supabase
-    .from("events")
-    .select(
-      `
-            *,
-            rsvps (
-                user_id,
-                status
-            )
-        `,
-    )
-    .gte("start_time", now)
-    .order("start_time", { ascending: true });
-
-  if (!events) return null;
-
-  // Type casting here because Supabase complex join types can be tricky to infer automatically
-  const typedEvents = events as unknown as (Event & {
-    rsvps: { user_id: string; status: "going" | "maybe" | "not_going" }[];
-  })[];
-
-  return typedEvents.map((event) => ({
-    ...event,
-    rsvp_status: user
-      ? event.rsvps.find((r) => r.user_id === user.id)?.status || null
-      : null,
-    rsvp_count: event.rsvps.filter((r) => r.status === "going").length,
-  }));
+export type Resource = {
+  id: string;
+  name: string;
+  link: string;
+  description: string | null;
+  is_pinned: boolean;
+  created_at: string;
 };
 
-export type Resource = Tables<"resources">;
-export type Tag = Tables<"tags">;
+export type Tag = {
+  id: string;
+  name: string;
+  slug: string;
+  display_order: number;
+  created_at: string;
+};
+
 export type ResourceWithTags = Resource & {
   tags: Tag[];
 };
 
-export const getResources = async (): Promise<Resource[] | null> => {
-  const supabase = await createClient();
-  const { data: resources } = await supabase
-    .from("resources")
-    .select("*")
-    .order("is_pinned", { ascending: false })
-    .order("name", { ascending: true });
-  return resources;
+export type Profile = {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  preferred_name: string | null;
+  instrument: string | null;
+  role: "admin" | "user";
+  major: string | null;
+  graduation_year: number | null;
+  is_onboarded: boolean;
 };
-
-export const getPinnedResources = async (): Promise<Resource[] | null> => {
-  const supabase = await createClient();
-  const { data: resources } = await supabase
-    .from("resources")
-    .select("*")
-    .eq("is_pinned", true)
-    .order("name", { ascending: true });
-  return resources;
-};
-
-/**
- * Get pinned resources with their tags
- */
-export const getPinnedResourcesWithTags = async (): Promise<
-  ResourceWithTags[] | null
-> => {
-  const supabase = await createClient();
-
-  const { data: resources } = await supabase
-    .from("resources")
-    .select(
-      `
-            *,
-            resource_tags(
-                tags(*)
-            )
-        `,
-    )
-    .eq("is_pinned", true)
-    .order("name", { ascending: true });
-
-  // Transform nested structure to flat array of tags
-  return (
-    resources?.map((resource) => ({
-      ...resource,
-      tags:
-        (resource.resource_tags
-          ?.map((rt: { tags: Tag | null }) => rt.tags)
-          .filter(Boolean) as Tag[]) || [],
-    })) || null
-  );
-};
-
-/**
- * Get all tags ordered by display_order
- */
-export const getTags = async (): Promise<Tag[] | null> => {
-  const supabase = await createClient();
-  const { data: tags } = await supabase
-    .from("tags")
-    .select("*")
-    .order("display_order", { ascending: true })
-    .order("name", { ascending: true });
-  return tags;
-};
-
-/**
- * Get all resources with their tags
- */
-export const getResourcesWithTags = async (): Promise<
-  ResourceWithTags[] | null
-> => {
-  const supabase = await createClient();
-
-  const { data: resources } = await supabase
-    .from("resources")
-    .select(
-      `
-            *,
-            resource_tags(
-                tags(*)
-            )
-        `,
-    )
-    .order("is_pinned", { ascending: false })
-    .order("name", { ascending: true });
-
-  // Transform nested structure to flat array of tags
-  return (
-    resources?.map((resource) => ({
-      ...resource,
-      tags:
-        (resource.resource_tags
-          ?.map((rt: { tags: Tag | null }) => rt.tags)
-          .filter(Boolean) as Tag[]) || [],
-    })) || null
-  );
-};
-
-export type Profile = Tables<"profiles">;
 
 export type EventRsvp = {
   user_id: string;
@@ -234,85 +65,125 @@ export type EventRsvp = {
   profile: Profile | null;
 };
 
-export const getEventRsvps = async (
-  eventId: string,
-): Promise<EventRsvp[] | null> => {
-  const supabase = await createClient();
-
-  const { data: rsvps } = await supabase
-    .from("rsvps")
-    .select(
-      `
-            user_id,
-            status,
-            created_at,
-            profile:profiles(*)
-        `,
-    )
-    .eq("event_id", eventId)
-    .order("created_at", { ascending: false });
-
-  if (!rsvps) return null;
-
-  // Type casting to handle the joined profile data correctly
-  return rsvps as unknown as EventRsvp[];
+const withFallback = async <T>(run: () => Promise<T>, fallback: T) => {
+  try {
+    return await run();
+  } catch {
+    return fallback;
+  }
 };
 
-/**
- * Get all profiles for admin management
- */
-export const getAllProfiles = async (): Promise<Profile[] | null> => {
-  const supabase = await createClient();
-  const { data: profiles } = await supabase
-    .from("profiles")
-    .select("*")
-    .order("first_name", { ascending: true })
-    .order("last_name", { ascending: true });
-  return profiles;
+const syncCurrentUser = async () => {
+  try {
+    await convexMutation("users:syncCurrentUser");
+  } catch {
+    // No-op for unauthenticated requests.
+  }
 };
 
-/**
- * Get events the current user has RSVP'd to (going or maybe)
- */
-export const getUserRsvpEvents = async (): Promise<EventWithRsvp[] | null> => {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export const getFirstName = async () => {
+  await syncCurrentUser();
 
-  if (!user) return null;
-
-  const { data: rsvps } = await supabase
-    .from("rsvps")
-    .select(
-      `
-      status,
-      event:events(*)
-    `,
-    )
-    .eq("user_id", user.id)
-    .in("status", ["going", "maybe"]);
-
-  if (!rsvps) return null;
-
-  // Type casting for the joined event data
-  const typedRsvps = rsvps as unknown as {
-    status: "going" | "maybe" | "not_going";
-    event: Event;
-  }[];
-
-  const now = new Date();
-
-  return typedRsvps
-    .filter((rsvp) => rsvp.event !== null)
-    .filter((rsvp) => new Date(rsvp.event.end_time) >= now)
-    .map((rsvp) => ({
-      ...rsvp.event,
-      rsvp_status: rsvp.status,
-      rsvp_count: 0, // We don't need the count for this view
-    }))
-    .sort(
-      (a, b) =>
-        new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
-    );
+  return withFallback(
+    () => convexQuery("users:getFirstName") as Promise<string | null>,
+    null,
+  );
 };
+
+export const getUserProfile = async () => {
+  await syncCurrentUser();
+
+  return withFallback(
+    () => convexQuery("users:getCurrentProfile") as Promise<Profile | null>,
+    null,
+  );
+};
+
+export const getIsAdmin = async () => {
+  await syncCurrentUser();
+
+  return withFallback(
+    () => convexQuery("users:getIsAdmin") as Promise<boolean>,
+    false,
+  );
+};
+
+export const getEvents = async () =>
+  withFallback(
+    () => convexPublicQuery("events:getAll") as Promise<Event[]>,
+    [],
+  );
+
+export const getUpcomingEvents = async () =>
+  withFallback(
+    () => convexPublicQuery("events:getUpcoming") as Promise<Event[]>,
+    [],
+  );
+
+export const getUpcomingEventsWithRsvp = async () => {
+  await syncCurrentUser();
+
+  return withFallback(
+    () => convexQuery("events:getUpcomingWithRsvp") as Promise<EventWithRsvp[]>,
+    [],
+  );
+};
+
+export const getResources = async () =>
+  withFallback(
+    () => convexPublicQuery("resources:getResources") as Promise<Resource[]>,
+    [],
+  );
+
+export const getPinnedResources = async () =>
+  withFallback(
+    () =>
+      convexPublicQuery("resources:getPinnedResources") as Promise<Resource[]>,
+    [],
+  );
+
+export const getPinnedResourcesWithTags = async () =>
+  withFallback(
+    () =>
+      convexPublicQuery("resources:getPinnedResourcesWithTags") as Promise<
+        ResourceWithTags[]
+      >,
+    [],
+  );
+
+export const getTags = async () =>
+  withFallback(
+    () => convexPublicQuery("resources:getTags") as Promise<Tag[]>,
+    [],
+  );
+
+export const getResourcesWithTags = async () =>
+  withFallback(
+    () =>
+      convexPublicQuery("resources:getResourcesWithTags") as Promise<
+        ResourceWithTags[]
+      >,
+    [],
+  );
+
+export const getEventRsvps = async (eventId: string) =>
+  withFallback(
+    () =>
+      convexQuery("events:getRsvpsByEventForAdmin", {
+        event_id: eventId,
+      }) as Promise<EventRsvp[]>,
+    [],
+  );
+
+export const getAllProfiles = async () =>
+  withFallback(
+    () => convexQuery("users:listProfiles") as Promise<Profile[]>,
+    [],
+  );
+
+export const getUserRsvpEvents = async () =>
+  withFallback(
+    () =>
+      convexQuery("rsvps:getCurrentUserRsvpEvents") as Promise<EventWithRsvp[]>,
+    [],
+  );

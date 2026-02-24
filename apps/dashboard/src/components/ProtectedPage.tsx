@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 export default async function ProtectedPage({
@@ -6,12 +6,9 @@ export default async function ProtectedPage({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const session = await auth();
 
-  if (!session) {
+  if (!session.userId) {
     redirect("/auth");
   }
 

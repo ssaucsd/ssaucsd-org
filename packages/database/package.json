@@ -12,9 +12,6 @@
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.89.0"
-  },
   "devDependencies": {
     "@ssaucsd/typescript-config": "workspace:*",
     "typescript": "^5"

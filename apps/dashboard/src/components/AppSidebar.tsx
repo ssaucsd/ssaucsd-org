@@ -1,12 +1,7 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
 } from "@/components/ui/sidebar";
@@ -34,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { SidebarNav } from "./SidebarNav";
+import { SignOutButton } from "@clerk/nextjs";
 
 export const userActions = [
   {
@@ -152,23 +148,12 @@ export async function AppSidebar() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <form
-                  action={async () => {
-                    "use server";
-                    const { createClient } =
-                      await import("@/lib/supabase/server");
-                    const supabase = await createClient();
-                    await supabase.auth.signOut();
-                    const { redirect } = await import("next/navigation");
-                    redirect("/login");
-                  }}
-                  className="w-full"
-                >
+                <SignOutButton redirectUrl="/auth">
                   <button className="flex w-full items-center gap-2 cursor-pointer text-destructive focus:text-destructive">
                     <HugeiconsIcon icon={Logout01Icon} className="size-4" />
                     Log out
                   </button>
-                </form>
+                </SignOutButton>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

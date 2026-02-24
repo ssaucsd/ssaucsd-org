@@ -7,6 +7,7 @@ import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import { Toaster } from "@/components/ui/sonner";
 import { PostHogIdentify } from "@/components/PostHogIdentify";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -31,26 +32,27 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <script src="https://accounts.google.com/gsi/client" async></script>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body
-        className={`${figtree.variable} ${geistMono.variable} ${calistoga.variable} antialiased`}
-      >
-        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-        <PostHogIdentify />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+        </head>
+        <body
+          className={`${figtree.variable} ${geistMono.variable} ${calistoga.variable} antialiased`}
         >
-          {children}
-          <Toaster />
-        </ThemeProvider>
-      </body>
-    </html>
+          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+          <PostHogIdentify />
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster />
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

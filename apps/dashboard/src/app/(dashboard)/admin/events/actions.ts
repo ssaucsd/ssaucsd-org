@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 import { getIsAdmin, getEventRsvps, type EventRsvp } from "@/lib/queries";
+import { convexMutation } from "@/lib/convex/server";
 
 export type ActionResult = {
   success: boolean;
@@ -30,8 +30,7 @@ export async function createEvent(formData: FormData): Promise<ActionResult> {
     };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("events").insert({
+  await convexMutation("events:createByAdmin", {
     title,
     description: description || null,
     location,
@@ -40,10 +39,6 @@ export async function createEvent(formData: FormData): Promise<ActionResult> {
     image_url: imageUrl || "",
     is_all_day: isAllDay,
   });
-
-  if (error) {
-    return { success: false, error: error.message };
-  }
 
   revalidatePath("/admin/events");
   revalidatePath("/events");
@@ -75,23 +70,16 @@ export async function updateEvent(
     };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("events")
-    .update({
-      title,
-      description: description || null,
-      location,
-      start_time: startTime,
-      end_time: endTime,
-      image_url: imageUrl || "",
-      is_all_day: isAllDay,
-    })
-    .eq("id", id);
-
-  if (error) {
-    return { success: false, error: error.message };
-  }
+  await convexMutation("events:updateByAdmin", {
+    id,
+    title,
+    description: description || null,
+    location,
+    start_time: startTime,
+    end_time: endTime,
+    image_url: imageUrl || "",
+    is_all_day: isAllDay,
+  });
 
   revalidatePath("/admin/events");
   revalidatePath("/events");
@@ -105,23 +93,17 @@ export async function deleteEvent(id: string): Promise<ActionResult> {
     return { success: false, error: "Unauthorized" };
   }
 
-  const supabase = await createClient();
-  const { error } = await supabase.from("events").delete().eq("id", id);
-
-  if (error) {
-    return { success: false, error: error.message };
-  }
+  await convexMutation("events:deleteByAdmin", { id });
 
   revalidatePath("/admin/events");
   revalidatePath("/events");
-  revalidatePath("/");
   revalidatePath("/");
   return { success: true };
 }
 
 export type RsvpResult = {
   success: boolean;
-  data?: EventRsvp[] | null;
+  data?: EventRsvp[];
   error?: string;
 };
 
