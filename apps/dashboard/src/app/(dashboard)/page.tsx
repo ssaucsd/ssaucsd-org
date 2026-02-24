@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Calendar,
@@ -8,25 +10,41 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
-import {
-  getFirstName,
-  getUpcomingEventsWithRsvp,
-  getPinnedResourcesWithTags,
-  getUserRsvpEvents,
-} from "@/lib/queries";
 import { HomeEventCard } from "@/components/HomeEventCard";
+import { useQuery } from "convex/react";
+import { clientApi } from "@/lib/convex/clientApi";
+import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import type { EventWithRsvp, ResourceWithTags } from "@ssaucsd/database";
 
-export default async function Page() {
-  const [firstName, events, resources, rsvpEvents] = await Promise.all([
-    getFirstName(),
-    getUpcomingEventsWithRsvp(),
-    getPinnedResourcesWithTags(),
-    getUserRsvpEvents(),
-  ]);
+export default function Page() {
+  const firstName = useQuery(clientApi.users.getFirstName) as
+    | string
+    | null
+    | undefined;
+  const events = useQuery(clientApi.events.getUpcomingWithRsvp) as
+    | EventWithRsvp[]
+    | undefined;
+  const resources = useQuery(clientApi.resources.getPinnedResourcesWithTags) as
+    | ResourceWithTags[]
+    | undefined;
+  const rsvpEvents = useQuery(clientApi.rsvps.getCurrentUserRsvpEvents) as
+    | EventWithRsvp[]
+    | undefined;
+
+  if (
+    firstName === undefined ||
+    events === undefined ||
+    resources === undefined ||
+    rsvpEvents === undefined
+  ) {
+    return <DashboardLoadingSpinner />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen w-full p-4 gap-8">
-      <h1 className="text-4xl font-serif">Welcome to SSA, {firstName}.</h1>
+      <h1 className="text-4xl font-serif">
+        Welcome to SSA, {firstName ?? "member"}.
+      </h1>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 grid-rows-[auto,1fr]">
         <Card className="col-span-1 lg:col-span-2 w-full">
           <CardHeader>

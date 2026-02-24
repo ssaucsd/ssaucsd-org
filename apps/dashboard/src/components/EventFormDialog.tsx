@@ -25,7 +25,6 @@ import {
   Edit02Icon,
   Cancel01Icon,
 } from "@hugeicons/core-free-icons";
-import { type Event } from "@/lib/queries";
 import {
   createEvent,
   updateEvent,
@@ -33,6 +32,7 @@ import {
 } from "@/app/(dashboard)/admin/events/actions";
 import { UploadButton } from "@/utils/uploadthing";
 import posthog from "posthog-js";
+import type { Event } from "@ssaucsd/database";
 
 interface EventFormDialogProps {
   event?: Event;

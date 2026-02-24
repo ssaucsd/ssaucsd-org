@@ -2,7 +2,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { type ResourceWithTags, type Tag } from "@/lib/queries";
 import {
   ResourceFormDialog,
   EditResourceButton,
@@ -11,16 +10,21 @@ import { DeleteResourceDialog } from "@/components/DeleteResourceDialog";
 import { TagsManager } from "./TagsManager";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Link01Icon, PinIcon, File01Icon } from "@hugeicons/core-free-icons";
+import { useQuery } from "convex/react";
+import { clientApi } from "@/lib/convex/clientApi";
+import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import type { ResourceWithTags, Tag } from "@ssaucsd/database";
 
-interface ResourcesAdminClientProps {
-  resources: ResourceWithTags[];
-  tags: Tag[];
-}
+export function ResourcesAdminClient() {
+  const resources = useQuery(clientApi.resources.getResourcesWithTags) as
+    | ResourceWithTags[]
+    | undefined;
+  const tags = useQuery(clientApi.resources.getTags) as Tag[] | undefined;
 
-export function ResourcesAdminClient({
-  resources,
-  tags,
-}: ResourcesAdminClientProps) {
+  if (resources === undefined || tags === undefined) {
+    return <DashboardLoadingSpinner />;
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6">
       {/* Main content */}

@@ -21,13 +21,13 @@ import {
 } from "@/components/ui/field";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Add01Icon, Edit02Icon } from "@hugeicons/core-free-icons";
-import { type ResourceWithTags, type Tag } from "@/lib/queries";
 import {
   createResource,
   updateResource,
   type ActionResult,
 } from "@/app/(dashboard)/admin/resources/actions";
 import posthog from "posthog-js";
+import type { ResourceWithTags, Tag } from "@ssaucsd/database";
 
 interface ResourceFormDialogProps {
   resource?: ResourceWithTags;

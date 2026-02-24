@@ -12,7 +12,7 @@ import {
   Tick02Icon,
   Cancel01Icon,
 } from "@hugeicons/core-free-icons";
-import { type Tag } from "@/lib/queries";
+import type { Tag } from "@ssaucsd/database";
 import { createTag, updateTag, deleteTag } from "./tag-actions";
 
 interface TagsManagerProps {

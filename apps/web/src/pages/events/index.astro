@@ -3,15 +3,7 @@ export const prerender = false;
 
 import Layout from "@/layouts/Layout.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
-import EventCard from "@/components/EventCard.astro";
-import { getAllEvents } from "@/lib/events";
-import { CalendarX } from "lucide-react";
-
-const events = await getAllEvents();
-Astro.response.headers.set(
-  "Cache-Control",
-  "public, s-maxage=900, stale-while-revalidate=3600",
-);
+import { LiveEventsGrid } from "@/components/LiveEventsGrid";
 ---
 
 <Layout
@@ -29,14 +21,7 @@ Astro.response.headers.set(
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {events.length > 0 ? (
-          events.map((event) => <EventCard {...event} />)
-        ) : (
-          <div class="col-span-full flex flex-col items-center justify-center gap-4 py-12 text-muted-foreground">
-            <CalendarX className="w-12 h-12" />
-            <p class="text-xl font-medium">No upcoming events :(</p>
-          </div>
-        )}
+        <LiveEventsGrid client:load />
       </div>
     </div>
   </div>

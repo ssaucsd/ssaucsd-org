@@ -15,6 +15,11 @@ export type Event = {
   updated_at: string;
 };
 
+export type EventWithRsvp = Event & {
+  rsvp_status: RsvpStatus | null;
+  rsvp_count: number;
+};
+
 export type Profile = {
   id: string;
   email: string;
@@ -45,6 +50,10 @@ export type Tag = {
   created_at: string;
 };
 
+export type ResourceWithTags = Resource & {
+  tags: Tag[];
+};
+
 export type ResourceTag = {
   resource_id: string;
   tag_id: string;
@@ -57,4 +66,11 @@ export type Rsvp = {
   event_id: string;
   status: RsvpStatus;
   created_at: string;
+};
+
+export type EventRsvp = {
+  user_id: string;
+  status: RsvpStatus;
+  created_at: string;
+  profile: Profile | null;
 };

@@ -1,15 +1,7 @@
 import { convexPublicQuery } from "@/lib/convex";
+import type { Event } from "@ssaucsd/database";
 
-export interface Event {
-  id: string;
-  title: string;
-  description?: string | null;
-  start_time: string;
-  end_time: string;
-  image_url: string;
-  location: string;
-  is_all_day?: boolean;
-}
+export type { Event } from "@ssaucsd/database";
 
 export async function getEvents(limit = 4): Promise<Event[]> {
   try {

@@ -1,11 +1,22 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { Calendar } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { getUpcomingEventsWithRsvp } from "@/lib/queries";
 import { EventCard } from "@/components/EventCard";
+import { useQuery } from "convex/react";
+import { clientApi } from "@/lib/convex/clientApi";
+import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import type { EventWithRsvp } from "@ssaucsd/database";
 
-export default async function EventsPage() {
-  const events = await getUpcomingEventsWithRsvp();
+export default function EventsPage() {
+  const events = useQuery(clientApi.events.getUpcomingWithRsvp) as
+    | EventWithRsvp[]
+    | undefined;
+
+  if (events === undefined) {
+    return <DashboardLoadingSpinner />;
+  }
 
   return (
     <div className="flex flex-col min-h-screen w-full p-4 md:p-6 lg:p-8 gap-8">

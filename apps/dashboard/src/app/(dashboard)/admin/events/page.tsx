@@ -1,10 +1,7 @@
 import AdminOnly from "@/components/AdminOnly";
-import { getEvents } from "@/lib/queries";
 import { EventsAdminClient } from "./events-admin-client";
 
-export default async function AdminEventsPage() {
-  const events = await getEvents();
-
+export default function AdminEventsPage() {
   return (
     <AdminOnly>
       <div className="flex flex-col min-h-screen w-full p-4 md:p-6 lg:p-8 gap-8">
@@ -15,7 +12,7 @@ export default async function AdminEventsPage() {
           </p>
         </div>
 
-        <EventsAdminClient events={events || []} />
+        <EventsAdminClient />
       </div>
     </AdminOnly>
   );

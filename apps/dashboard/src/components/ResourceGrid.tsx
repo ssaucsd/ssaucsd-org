@@ -9,8 +9,8 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
-import { type ResourceWithTags } from "@/lib/queries";
 import posthog from "posthog-js";
+import type { ResourceWithTags } from "@ssaucsd/database";
 
 interface ResourceGridProps {
   resources: ResourceWithTags[];

@@ -27,11 +27,11 @@ import {
 } from "@/components/ui/select";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Edit02Icon } from "@hugeicons/core-free-icons";
-import { type Profile } from "@/lib/queries";
 import {
   updateUserProfile,
   type ActionResult,
 } from "@/app/(dashboard)/admin/users/actions";
+import type { Profile } from "@ssaucsd/database";
 
 interface UserFormDialogProps {
   user: Profile;

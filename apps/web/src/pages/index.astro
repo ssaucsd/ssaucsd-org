@@ -5,16 +5,8 @@ import { getImage } from "astro:assets";
 import Layout from "@/layouts/Layout.astro";
 import Hero from "@/components/Hero.astro";
 import InitiativeCard from "@/components/InitiativeCard.astro";
-import EventCard from "@/components/EventCard.astro";
-import { getEvents } from "@/lib/events";
-import { CalendarX } from "lucide-react";
+import { LiveEventsGrid } from "@/components/LiveEventsGrid";
 import heroImageSrc from "@/assets/hero.webp";
-
-const events = await getEvents(4);
-Astro.response.headers.set(
-  "Cache-Control",
-  "public, s-maxage=900, stale-while-revalidate=3600",
-);
 
 // Generate optimized hero image
 const heroImage = await getImage({ src: heroImageSrc, width: 600, height: 400 });
@@ -109,14 +101,7 @@ const organizationSchema = {
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        {events.length > 0 ? (
-          events.map((event) => <EventCard {...event} />)
-        ) : (
-          <div class="col-span-full flex flex-col items-center justify-center gap-4 py-12 text-muted-foreground">
-            <CalendarX className="w-12 h-12" />
-            <p class="text-xl font-medium">No upcoming events :(</p>
-          </div>
-        )}
+        <LiveEventsGrid limit={4} client:load />
       </div>
     </div>
   </div>

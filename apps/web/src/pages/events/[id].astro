@@ -6,7 +6,7 @@ import Layout from "@/layouts/Layout.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
 import { getEventById } from "@/lib/events";
 import { generateEventSchema } from "@/lib/schemas";
-import { ArrowRight, Calendar, Clock, MapPin } from "lucide-react";
+import { LiveEventDetail } from "@/components/LiveEventDetail";
 
 const { id } = Astro.params;
 
@@ -24,29 +24,6 @@ Astro.response.headers.set(
 if (!event) {
   return Astro.redirect("/404");
 }
-
-const startDate = new Date(event.start_time);
-const endDate = new Date(event.end_time);
-
-const formattedDate = startDate.toLocaleDateString("en-US", {
-  weekday: "long",
-  month: "long",
-  day: "numeric",
-  year: "numeric",
-  timeZone: "America/Los_Angeles",
-});
-
-const formattedStartTime = startDate.toLocaleTimeString("en-US", {
-  hour: "numeric",
-  minute: "2-digit",
-  timeZone: "America/Los_Angeles",
-});
-
-const formattedEndTime = endDate.toLocaleTimeString("en-US", {
-  hour: "numeric",
-  minute: "2-digit",
-  timeZone: "America/Los_Angeles",
-});
 
 const description = event.description?.slice(0, 160) || `Join us for ${event.title} at ${event.location}`;
 ---
@@ -81,7 +58,6 @@ const description = event.description?.slice(0, 160) || `Join us for ${event.tit
 
       <!-- Right: Content -->
       <article class="flex flex-col px-6 py-10 lg:px-12 lg:py-16">
-        <!-- Breadcrumb navigation -->
         <Breadcrumb
           items={[
             { name: "Events", href: "/events" },
@@ -89,68 +65,7 @@ const description = event.description?.slice(0, 160) || `Join us for ${event.tit
           ]}
           className="mb-8"
         />
-
-        <!-- Event Header -->
-        <header class="mb-8">
-          <h1 class="font-serif text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl leading-tight">
-            {event.title}
-          </h1>
-        </header>
-
-        <!-- Event Meta -->
-        <div class="flex flex-col gap-4 mb-10 pb-10 border-b border-border/50">
-          <!-- Date -->
-          <div class="flex items-center gap-3 text-foreground">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <Calendar className="h-5 w-5 text-primary" />
-            </div>
-            <span class="text-base font-medium">{formattedDate}</span>
-          </div>
-
-          <!-- Time -->
-          <div class="flex items-center gap-3 text-foreground">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <Clock className="h-5 w-5 text-primary" />
-            </div>
-            <span class="text-base font-medium">
-              {formattedStartTime} – {formattedEndTime}
-            </span>
-          </div>
-
-          <!-- Location -->
-          <div class="flex items-center gap-3 text-foreground">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <MapPin className="h-5 w-5 text-primary" />
-            </div>
-            <span class="text-base font-medium">{event.location}</span>
-          </div>
-        </div>
-
-        <!-- Description -->
-        {event.description && (
-          <section class="flex-1">
-            <h2 class="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-4">
-              About this event
-            </h2>
-            <div class="text-base leading-relaxed text-foreground/90 whitespace-pre-wrap">
-              {event.description}
-            </div>
-          </section>
-        )}
-
-        <!-- Footer -->
-        <footer class="mt-12 pt-8 border-t border-border/50">
-          <p class="text-muted-foreground mb-3">
-            We hope to see you there!
-          </p>
-          <a
-            href="/events"
-            class="inline-flex items-center gap-2 text-primary font-medium hover:underline underline-offset-4"
-          >
-            View all upcoming events
-            <ArrowRight className="h-4 w-4" />
-          </a>
-        </footer>
+        <LiveEventDetail id={id} initialEvent={event} client:load />
       </article>
     </div>
   </div>

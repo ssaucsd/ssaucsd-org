@@ -1,6 +1,3 @@
-import { getUserProfile } from "@/lib/queries";
-import { ProfileSettingsForm } from "@/components/ProfileSettingsForm";
-import { redirect } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -8,14 +5,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { SettingsClient } from "./settings-client";
 
-export default async function SettingsPage() {
-  const profile = await getUserProfile();
-
-  if (!profile) {
-    redirect("/auth");
-  }
-
+export default function SettingsPage() {
   return (
     <div className="flex flex-1 flex-col items-center justify-start p-6 gap-6 w-full">
       <div className="w-full max-w-2xl">
@@ -29,7 +21,7 @@ export default async function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ProfileSettingsForm profile={profile} />
+            <SettingsClient />
           </CardContent>
         </Card>
       </div>

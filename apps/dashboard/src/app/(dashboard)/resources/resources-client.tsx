@@ -3,32 +3,38 @@
 import { useState, useMemo } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ResourceGrid } from "@/components/ResourceGrid";
-import { type Tag, type ResourceWithTags } from "@/lib/queries";
 import posthog from "posthog-js";
+import { useQuery } from "convex/react";
+import { clientApi } from "@/lib/convex/clientApi";
+import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import type { ResourceWithTags, Tag } from "@ssaucsd/database";
 
-export function ResourcesClient({
-  tags,
-  resources,
-}: {
-  tags: Tag[];
-  resources: ResourceWithTags[];
-}) {
+export function ResourcesClient() {
+  const tags = useQuery(clientApi.resources.getTags) as Tag[] | undefined;
+  const resources = useQuery(clientApi.resources.getResourcesWithTags) as
+    | ResourceWithTags[]
+    | undefined;
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
 
   const filteredResources = useMemo(() => {
-    if (!selectedTagId) return resources;
+    const source = resources ?? [];
+    if (!selectedTagId) return source;
 
-    return resources.filter((resource) =>
+    return source.filter((resource) =>
       resource.tags.some((tag) => tag.id === selectedTagId),
     );
   }, [resources, selectedTagId]);
+
+  if (tags === undefined || resources === undefined) {
+    return <DashboardLoadingSpinner />;
+  }
 
   const handleTagChange = (value: string) => {
     const newTagId = value === "all" ? null : value;
     setSelectedTagId(newTagId);
 
     // Track resource filter event
-    const selectedTag = tags.find((t) => t.id === value);
+    const selectedTag = tags.find((tag) => tag.id === value);
     posthog.capture("resource_filtered", {
       filter_type: value === "all" ? "all" : "tag",
       tag_id: newTagId,

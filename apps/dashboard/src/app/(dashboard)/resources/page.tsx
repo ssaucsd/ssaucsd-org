@@ -1,12 +1,6 @@
-import { getResourcesWithTags, getTags } from "@/lib/queries";
 import { ResourcesClient } from "./resources-client";
 
-export default async function ResourcesPage() {
-  const [tags, resources] = await Promise.all([
-    getTags(),
-    getResourcesWithTags(),
-  ]);
-
+export default function ResourcesPage() {
   return (
     <div className="flex flex-col min-h-screen w-full p-4 md:p-6 lg:p-8 gap-8">
       <div className="space-y-2">
@@ -16,7 +10,7 @@ export default async function ResourcesPage() {
         </p>
       </div>
 
-      <ResourcesClient tags={tags || []} resources={resources || []} />
+      <ResourcesClient />
     </div>
   );
 }

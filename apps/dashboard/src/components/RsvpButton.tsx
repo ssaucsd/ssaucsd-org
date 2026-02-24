@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { rsvpToEvent, removeRsvp } from "@/app/actions/rsvp";
 import { toast } from "sonner";
@@ -10,26 +10,24 @@ import posthog from "posthog-js";
 
 interface RsvpButtonProps {
   eventId: string;
-  initialStatus: "going" | "maybe" | "not_going" | null;
+  status: "going" | "maybe" | "not_going" | null;
   className?: string;
   onRsvpChange?: (status: "going" | "maybe" | "not_going" | null) => void;
 }
 
 export function RsvpButton({
   eventId,
-  initialStatus,
+  status,
   className,
   onRsvpChange,
 }: RsvpButtonProps) {
   const [isPending, startTransition] = useTransition();
-  const [status, setStatus] = useState(initialStatus);
 
   const handleRsvp = () => {
     startTransition(async () => {
       try {
         if (status === "going") {
           await removeRsvp(eventId);
-          setStatus(null);
           onRsvpChange?.(null);
           toast.success("RSVP removed");
 
@@ -39,7 +37,6 @@ export function RsvpButton({
           });
         } else {
           await rsvpToEvent(eventId, "going");
-          setStatus("going");
           onRsvpChange?.("going");
           toast.success("RSVP'd successfully!");
 

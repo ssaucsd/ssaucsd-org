@@ -2,17 +2,22 @@
 
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { type Profile } from "@/lib/queries";
 import { EditUserButton } from "@/components/UserFormDialog";
 import { DeleteUserDialog } from "@/components/DeleteUserDialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { UserMultiple02Icon } from "@hugeicons/core-free-icons";
+import { useQuery } from "convex/react";
+import { clientApi } from "@/lib/convex/clientApi";
+import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import type { Profile } from "@ssaucsd/database";
 
-interface UsersAdminClientProps {
-  users: Profile[];
-}
+export function UsersAdminClient() {
+  const users = useQuery(clientApi.users.listProfiles) as Profile[] | undefined;
 
-export function UsersAdminClient({ users }: UsersAdminClientProps) {
+  if (users === undefined) {
+    return <DashboardLoadingSpinner />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}

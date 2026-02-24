@@ -1,10 +1,7 @@
 import AdminOnly from "@/components/AdminOnly";
-import { getAllProfiles } from "@/lib/queries";
 import { UsersAdminClient } from "./users-admin-client";
 
-export default async function AdminUsersPage() {
-  const users = await getAllProfiles();
-
+export default function AdminUsersPage() {
   return (
     <AdminOnly>
       <div className="flex flex-col min-h-screen w-full p-4 md:p-6 lg:p-8 gap-8">
@@ -15,7 +12,7 @@ export default async function AdminUsersPage() {
           </p>
         </div>
 
-        <UsersAdminClient users={users || []} />
+        <UsersAdminClient />
       </div>
     </AdminOnly>
   );

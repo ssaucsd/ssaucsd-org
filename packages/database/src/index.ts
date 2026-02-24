@@ -1,7 +1,10 @@
 export type {
   Event,
+  EventRsvp,
+  EventWithRsvp,
   Profile,
   Resource,
+  ResourceWithTags,
   Tag,
   ResourceTag,
   Rsvp,

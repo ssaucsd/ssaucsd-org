@@ -1,6 +1,5 @@
 "use client";
 
-import { type EventWithRsvp } from "@/lib/queries";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { MapPin, Clock } from "@hugeicons/core-free-icons";
@@ -8,6 +7,7 @@ import Image from "next/image";
 import * as React from "react";
 import { RsvpButton } from "./RsvpButton";
 import posthog from "posthog-js";
+import type { EventWithRsvp } from "@ssaucsd/database";
 
 interface EventDetailDialogProps {
   event: EventWithRsvp;
@@ -100,10 +100,7 @@ export function EventDetailDialog({ event, children }: EventDetailDialogProps) {
                 <span>{event.location}</span>
               </div>
 
-              <RsvpButton
-                eventId={event.id}
-                initialStatus={event.rsvp_status}
-              />
+              <RsvpButton eventId={event.id} status={event.rsvp_status} />
             </div>
 
             {/* Description */}

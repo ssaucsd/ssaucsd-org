@@ -1,11 +1,11 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { type EventWithRsvp } from "@/lib/queries";
 import { EventDetailDialog } from "@/components/EventDetailDialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { MapPin, Clock } from "@hugeicons/core-free-icons";
 import Image from "next/image";
+import type { EventWithRsvp } from "@ssaucsd/database";
 
 interface EventCardProps {
   event: EventWithRsvp;

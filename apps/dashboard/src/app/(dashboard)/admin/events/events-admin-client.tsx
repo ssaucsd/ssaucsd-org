@@ -1,19 +1,24 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { type Event } from "@/lib/queries";
 import { EventFormDialog, EditEventButton } from "@/components/EventFormDialog";
 import { DeleteEventDialog } from "@/components/DeleteEventDialog";
 import { RsvpListDialog } from "@/components/RsvpListDialog";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Calendar, MapPin, Clock } from "@hugeicons/core-free-icons";
 import Image from "next/image";
+import { useQuery } from "convex/react";
+import { clientApi } from "@/lib/convex/clientApi";
+import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import type { Event } from "@ssaucsd/database";
 
-interface EventsAdminClientProps {
-  events: Event[];
-}
+export function EventsAdminClient() {
+  const events = useQuery(clientApi.events.getAll) as Event[] | undefined;
 
-export function EventsAdminClient({ events }: EventsAdminClientProps) {
+  if (events === undefined) {
+    return <DashboardLoadingSpinner />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header with Add Button */}

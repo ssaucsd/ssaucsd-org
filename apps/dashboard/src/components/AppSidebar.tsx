@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Sidebar,
   SidebarContent,
@@ -17,7 +19,6 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import Link from "next/link";
-import { getIsAdmin, getUserProfile } from "@/lib/queries";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +31,9 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { SidebarNav } from "./SidebarNav";
 import { SignOutButton } from "@clerk/nextjs";
+import { useQuery } from "convex/react";
+import { clientApi } from "@/lib/convex/clientApi";
+import type { Profile } from "@ssaucsd/database";
 
 export const userActions = [
   {
@@ -67,8 +71,13 @@ export const adminActions = [
   },
 ];
 
-export async function AppSidebar() {
-  const [isAdmin, user] = await Promise.all([getIsAdmin(), getUserProfile()]);
+export function AppSidebar() {
+  const isAdmin =
+    (useQuery(clientApi.users.getIsAdmin) as boolean | undefined) ?? false;
+  const user = useQuery(clientApi.users.getCurrentProfile) as
+    | Profile
+    | null
+    | undefined;
 
   return (
     <Sidebar collapsible="icon">
