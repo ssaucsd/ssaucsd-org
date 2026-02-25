@@ -4,9 +4,9 @@ export const prerender = false;
 import { Image } from "astro:assets";
 import Layout from "@/layouts/Layout.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
+import EventDetail from "@/components/EventDetail.astro";
 import { getEventById } from "@/lib/events";
 import { generateEventSchema } from "@/lib/schemas";
-import { LiveEventDetail } from "@/components/LiveEventDetail";
 
 const { id } = Astro.params;
 
@@ -65,7 +65,7 @@ const description = event.description?.slice(0, 160) || `Join us for ${event.tit
           ]}
           className="mb-8"
         />
-        <LiveEventDetail id={id} initialEvent={event} client:load />
+        <EventDetail event={event} />
       </article>
     </div>
   </div>

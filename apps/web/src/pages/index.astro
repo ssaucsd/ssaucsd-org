@@ -5,11 +5,20 @@ import { getImage } from "astro:assets";
 import Layout from "@/layouts/Layout.astro";
 import Hero from "@/components/Hero.astro";
 import InitiativeCard from "@/components/InitiativeCard.astro";
-import { LiveEventsGrid } from "@/components/LiveEventsGrid";
+import EventCard from "@/components/EventCard.astro";
+import { getEvents } from "@/lib/events";
 import heroImageSrc from "@/assets/hero.webp";
 
 // Generate optimized hero image
 const heroImage = await getImage({ src: heroImageSrc, width: 600, height: 400 });
+
+// Server-side fetch of upcoming events (cached at CDN for 15 min)
+const events = await getEvents(4);
+
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=900, stale-while-revalidate=3600",
+);
 
 const INITIATIVES = [
   {
@@ -101,7 +110,15 @@ const organizationSchema = {
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <LiveEventsGrid limit={4} client:load />
+        {events.length === 0 ? (
+          <div class="col-span-full flex flex-col items-center justify-center gap-4 py-12 text-muted-foreground">
+            <p class="text-xl font-medium">No upcoming events :(</p>
+          </div>
+        ) : (
+          events.map((event) => (
+            <EventCard {...event} />
+          ))
+        )}
       </div>
     </div>
   </div>

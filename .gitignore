@@ -38,3 +38,6 @@ coverage/
 
 # Convex
 convex/_generated/
+
+# Turborepo
+.turbo

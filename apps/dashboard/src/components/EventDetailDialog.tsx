@@ -78,6 +78,7 @@ export function EventDetailDialog({ event, children }: EventDetailDialogProps) {
                 src={event.image_url}
                 alt={event.title}
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-contain"
               />
             ) : (

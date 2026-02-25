@@ -3,7 +3,15 @@ export const prerender = false;
 
 import Layout from "@/layouts/Layout.astro";
 import Breadcrumb from "@/components/Breadcrumb.astro";
-import { LiveEventsGrid } from "@/components/LiveEventsGrid";
+import EventCard from "@/components/EventCard.astro";
+import { getAllEvents } from "@/lib/events";
+
+const events = await getAllEvents();
+
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=900, stale-while-revalidate=3600",
+);
 ---
 
 <Layout
@@ -21,7 +29,15 @@ import { LiveEventsGrid } from "@/components/LiveEventsGrid";
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        <LiveEventsGrid client:load />
+        {events.length === 0 ? (
+          <div class="col-span-full flex flex-col items-center justify-center gap-4 py-12 text-muted-foreground">
+            <p class="text-xl font-medium">No upcoming events :(</p>
+          </div>
+        ) : (
+          events.map((event) => (
+            <EventCard {...event} />
+          ))
+        )}
       </div>
     </div>
   </div>

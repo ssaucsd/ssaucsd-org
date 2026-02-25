@@ -3,14 +3,42 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      "inputs": [
+        "src/**",
+        "public/**",
+        "next.config.*",
+        "astro.config.*",
+        "tsconfig.json",
+        "postcss.config.*",
+        "package.json"
+      ],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
-    "lint": {},
-    "typecheck": {},
-    "format:check": {}
+    "lint": {
+      "inputs": [
+        "src/**/*.{ts,tsx,mts,js,jsx,mjs}",
+        "eslint.config.*",
+        "package.json"
+      ]
+    },
+    "typecheck": {
+      "inputs": [
+        "src/**/*.{ts,tsx,mts}",
+        "tsconfig.json",
+        "package.json"
+      ],
+      "outputs": ["*.tsbuildinfo"]
+    },
+    "format:check": {
+      "inputs": [
+        "src/**/*.{ts,tsx,mts,mjs,json,css,astro}",
+        ".prettierrc*",
+        "package.json"
+      ]
+    }
   }
 }
