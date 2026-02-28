@@ -30,10 +30,19 @@ const eventsGridCards = (count: number) =>
         <Skeleton className="absolute top-3 left-3 h-14 w-12 rounded-lg" />
       </div>
       <CardContent className="p-5 space-y-4">
-        <Skeleton className="h-6 w-4/5" />
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-4/5" />
+          <Skeleton className="h-6 w-2/3" />
+        </div>
         <div className="space-y-2 pt-2 border-t border-border/50">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-3/4" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-sm shrink-0" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-sm shrink-0" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -42,18 +51,23 @@ const eventsGridCards = (count: number) =>
 const resourcesGridCards = (count: number) =>
   Array.from({ length: count }).map((_, index) => (
     <Card key={index} className="overflow-hidden p-0">
-      <div className="h-24 bg-muted/40 p-3 flex items-end">
-        <Skeleton className="h-10 w-10 rounded-xl" />
+      <div className="relative h-24 bg-muted/40">
+        <Skeleton className="absolute bottom-3 left-5 h-11 w-11 rounded-xl" />
+        <Skeleton className="absolute top-3 right-3 h-6 w-12 rounded-full" />
       </div>
       <CardContent className="p-5 space-y-3">
-        <Skeleton className="h-5 w-4/5" />
-        <Skeleton className="h-4 w-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-4/5" />
+          <Skeleton className="h-4 w-full" />
+        </div>
         <div className="flex flex-wrap gap-1.5">
           <Skeleton className="h-5 w-14 rounded-full" />
           <Skeleton className="h-5 w-16 rounded-full" />
           <Skeleton className="h-5 w-12 rounded-full" />
         </div>
-        <Skeleton className="h-3 w-2/3" />
+        <div className="pt-2 border-t border-border/50">
+          <Skeleton className="h-3 w-2/3" />
+        </div>
       </CardContent>
     </Card>
   ));
@@ -111,7 +125,7 @@ export function DashboardHomeSkeleton() {
 export function DashboardEventsSkeleton() {
   return (
     <div className="flex flex-col min-h-screen w-full p-4 md:p-6 lg:p-8 gap-8">
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Skeleton className="h-11 w-72" />
         <Skeleton className="h-6 w-80 max-w-full" />
       </div>
@@ -125,11 +139,13 @@ export function DashboardEventsSkeleton() {
 export function DashboardResourcesSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
-        <Skeleton className="h-9 w-16 rounded-md" />
-        <Skeleton className="h-9 w-20 rounded-md" />
-        <Skeleton className="h-9 w-24 rounded-md" />
-        <Skeleton className="h-9 w-20 rounded-md" />
+      <div className="w-fit max-w-full rounded-lg border bg-muted/40 p-1">
+        <div className="flex flex-wrap gap-1">
+          <Skeleton className="h-8 w-16 rounded-md" />
+          <Skeleton className="h-8 w-20 rounded-md" />
+          <Skeleton className="h-8 w-24 rounded-md" />
+          <Skeleton className="h-8 w-20 rounded-md" />
+        </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {resourcesGridCards(6)}
@@ -180,14 +196,20 @@ export function AdminResourcesSkeleton() {
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+                    <div className="rounded-lg bg-primary/10 p-2 shrink-0">
+                      <Skeleton className="h-5 w-5 rounded-sm" />
+                    </div>
                     <div className="space-y-2 flex-1">
-                      <Skeleton className="h-5 w-3/5" />
+                      <div className="flex items-center gap-2">
+                        <Skeleton className="h-5 w-3/5" />
+                        <Skeleton className="h-5 w-14 rounded-full" />
+                      </div>
                       <Skeleton className="h-4 w-4/5" />
                       <Skeleton className="h-4 w-full" />
-                      <div className="flex gap-1">
+                      <div className="flex flex-wrap gap-1">
                         <Skeleton className="h-5 w-14 rounded-full" />
                         <Skeleton className="h-5 w-16 rounded-full" />
+                        <Skeleton className="h-5 w-12 rounded-full" />
                       </div>
                     </div>
                   </div>
@@ -203,17 +225,29 @@ export function AdminResourcesSkeleton() {
       </div>
 
       <Card className="lg:sticky lg:top-6 lg:self-start">
-        <CardHeader className="space-y-3">
-          <Skeleton className="h-7 w-32" />
-          <Skeleton className="h-4 w-4/5" />
+        <CardHeader className="pb-3">
+          <Skeleton className="h-7 w-36" />
         </CardHeader>
-        <CardContent className="space-y-3">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-8 w-8 rounded-md" />
-            </div>
-          ))}
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Skeleton className="h-10 flex-1" />
+            <Skeleton className="h-10 w-10" />
+          </div>
+          <div className="space-y-2">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 rounded-lg bg-muted/50 p-2"
+              >
+                <Skeleton className="h-4 flex-1" />
+                <Skeleton className="h-8 w-8 rounded-md" />
+                <Skeleton className="h-8 w-8 rounded-md" />
+              </div>
+            ))}
+          </div>
+          <div className="pt-1">
+            <Skeleton className="h-4 w-2/3" />
+          </div>
         </CardContent>
       </Card>
     </div>
