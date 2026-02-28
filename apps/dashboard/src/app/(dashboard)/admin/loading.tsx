@@ -1,5 +1,5 @@
-import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import { AdminUsersSkeleton } from "@/components/dashboard-skeletons";
 
 export default function Loading() {
-  return <DashboardLoadingSpinner />;
+  return <AdminUsersSkeleton />;
 }

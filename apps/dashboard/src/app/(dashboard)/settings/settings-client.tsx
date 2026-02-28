@@ -1,7 +1,7 @@
 "use client";
 
 import { ProfileSettingsForm } from "@/components/ProfileSettingsForm";
-import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import { DashboardSettingsSkeleton } from "@/components/dashboard-skeletons";
 import { clientApi } from "@/lib/convex/clientApi";
 import { useQuery } from "convex/react";
 import type { Profile } from "@ssaucsd/database";
@@ -13,7 +13,7 @@ export function SettingsClient() {
     | undefined;
 
   if (profile === undefined) {
-    return <DashboardLoadingSpinner />;
+    return <DashboardSettingsSkeleton />;
   }
 
   if (!profile) {
