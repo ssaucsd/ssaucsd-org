@@ -160,7 +160,7 @@ export const boardMembers: BoardMember[] = [
     year: "2nd year",
     instrument: "Trumpet",
     imageUrl: "/board/evan.webp",
-    major: "Biochemistry",
+    major: "Pharmacological Chemistry",
   },
 
   {
