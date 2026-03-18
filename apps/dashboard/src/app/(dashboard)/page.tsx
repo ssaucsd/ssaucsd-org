@@ -13,7 +13,7 @@ import Link from "next/link";
 import { HomeEventCard } from "@/components/HomeEventCard";
 import { useQuery } from "convex/react";
 import { clientApi } from "@/lib/convex/clientApi";
-import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import { DashboardHomeSkeleton } from "@/components/dashboard-skeletons";
 import type { EventWithRsvp, ResourceWithTags } from "@ssaucsd/database";
 
 export default function Page() {
@@ -38,7 +38,7 @@ export default function Page() {
     resources === undefined ||
     rsvpEvents === undefined
   ) {
-    return <DashboardLoadingSpinner />;
+    return <DashboardHomeSkeleton />;
   }
 
   const upcomingEvents = events.slice(0, homeEventsLimit);

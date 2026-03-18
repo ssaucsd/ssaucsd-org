@@ -6,7 +6,7 @@ import { ResourceGrid } from "@/components/ResourceGrid";
 import posthog from "posthog-js";
 import { useQuery } from "convex/react";
 import { clientApi } from "@/lib/convex/clientApi";
-import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import { DashboardResourcesSkeleton } from "@/components/dashboard-skeletons";
 import type { ResourceWithTags, Tag } from "@ssaucsd/database";
 
 export function ResourcesClient() {
@@ -26,7 +26,7 @@ export function ResourcesClient() {
   }, [resources, selectedTagId]);
 
   if (tags === undefined || resources === undefined) {
-    return <DashboardLoadingSpinner />;
+    return <DashboardResourcesSkeleton />;
   }
 
   const handleTagChange = (value: string) => {

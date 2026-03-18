@@ -9,14 +9,14 @@ import { Calendar, MapPin, Clock } from "@hugeicons/core-free-icons";
 import Image from "next/image";
 import { useQuery } from "convex/react";
 import { clientApi } from "@/lib/convex/clientApi";
-import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import { AdminEventsSkeleton } from "@/components/dashboard-skeletons";
 import type { Event } from "@ssaucsd/database";
 
 export function EventsAdminClient() {
   const events = useQuery(clientApi.events.getAll) as Event[] | undefined;
 
   if (events === undefined) {
-    return <DashboardLoadingSpinner />;
+    return <AdminEventsSkeleton />;
   }
 
   return (

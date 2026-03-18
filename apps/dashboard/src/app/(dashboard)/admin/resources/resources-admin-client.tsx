@@ -12,7 +12,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Link01Icon, PinIcon, File01Icon } from "@hugeicons/core-free-icons";
 import { useQuery } from "convex/react";
 import { clientApi } from "@/lib/convex/clientApi";
-import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import { AdminResourcesSkeleton } from "@/components/dashboard-skeletons";
 import type { ResourceWithTags, Tag } from "@ssaucsd/database";
 
 export function ResourcesAdminClient() {
@@ -22,7 +22,7 @@ export function ResourcesAdminClient() {
   const tags = useQuery(clientApi.resources.getTags) as Tag[] | undefined;
 
   if (resources === undefined || tags === undefined) {
-    return <DashboardLoadingSpinner />;
+    return <AdminResourcesSkeleton />;
   }
 
   return (

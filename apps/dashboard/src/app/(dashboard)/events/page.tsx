@@ -6,7 +6,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { EventCard } from "@/components/EventCard";
 import { useQuery } from "convex/react";
 import { clientApi } from "@/lib/convex/clientApi";
-import { DashboardLoadingSpinner } from "@/components/dashboard-loading-spinner";
+import { DashboardEventsSkeleton } from "@/components/dashboard-skeletons";
 import type { EventWithRsvp } from "@ssaucsd/database";
 
 export default function EventsPage() {
@@ -15,7 +15,7 @@ export default function EventsPage() {
     | undefined;
 
   if (events === undefined) {
-    return <DashboardLoadingSpinner />;
+    return <DashboardEventsSkeleton />;
   }
 
   return (
