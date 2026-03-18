@@ -7,6 +7,10 @@ import Hero from "@/components/Hero.astro";
 import InitiativeCard from "@/components/InitiativeCard.astro";
 import EventCard from "@/components/EventCard.astro";
 import { getEvents } from "@/lib/events";
+import {
+  generateFAQSchema,
+  generateOrganizationSchema,
+} from "@/lib/schemas";
 import heroImageSrc from "@/assets/hero.webp";
 
 // Generate optimized hero image
@@ -51,35 +55,156 @@ const INITIATIVES = [
   },
 ];
 
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Symphonic Student Association at UCSD",
-  url: "https://ssaucsd.org",
-  logo: "https://ssaucsd.org/favicon/android-chrome-512x512.png",
-  sameAs: [
-    "https://github.com/ssaucsd",
-    "https://www.instagram.com/ssa_at_ucsd",
-    "https://linkedin.com/company/symphonic-student-association",
-    "http://www.youtube.com/@symphonicstudentassociatio8977",
-    "https://discord.gg/PncDrAxvkS",
-  ],
-  description:
-    "SSA at UCSD - University of California, San Diego's largest student-run classical music-oriented organization.",
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "La Jolla",
-    addressRegion: "CA",
-    postalCode: "92093",
-    addressCountry: "US",
+const faqItems = [
+  {
+    question: "What is the classical music club at UCSD?",
+    answer:
+      "The Symphonic Student Association at UCSD is a student-run classical music club at UC San Diego that brings together performers, listeners, and students who want ensemble, rehearsal, concert, and community opportunities.",
   },
-};
+  {
+    question: "How can I get involved with Symphonic Student Association at UCSD?",
+    answer:
+      "You can get involved with Symphonic Student Association at UCSD by joining our membership portal, attending events, following our updates, and connecting with a student community built around performance, rehearsal, and musical friendship.",
+  },
+  {
+    question: "What does the Symphonic Student Association at UCSD do?",
+    answer:
+      "Symphonic Student Association at UCSD organizes ensemble playing, weekly rehearsals, concerts, social events, and accessible ways for students to participate in classical music regardless of major or prior experience.",
+  },
+  {
+    question: "Can beginners join SSA at UCSD?",
+    answer:
+      "Yes. SSA at UCSD welcomes students with a wide range of musical backgrounds, including people who are newer to performance, interested in listening, or simply looking for a classical music community on campus.",
+  },
+];
 ---
 
-<Layout title="SSA at UCSD">
-  <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
+<Layout
+  title="Symphonic Student Association at UCSD | Student-Run Classical Music Club"
+  description="Symphonic Student Association at UCSD is a student-run classical music club at UC San Diego, connecting musicians, ensembles, concerts, rehearsals, and community events."
+>
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(generateOrganizationSchema({
+      mainEntityOfPage: "https://ssaucsd.org/",
+    }))}
+  />
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(generateFAQSchema(faqItems))}
+  />
 
   <Hero imageSrc={heroImage.src} />
+
+  <section class="w-full bg-background px-6 py-24">
+    <div class="mx-auto flex max-w-6xl flex-col gap-12">
+      <div class="flex max-w-4xl flex-col gap-5">
+        <p class="text-sm font-bold uppercase tracking-[0.3em] text-primary">
+          Symphonic Student Association at UCSD
+        </p>
+        <h2 class="text-5xl font-black">A student-run classical music club built around performance and community.</h2>
+        <p class="max-w-4xl text-lg text-muted-foreground">
+          Symphonic Student Association at UCSD is a student-run classical music club at UC San
+          Diego for instrumentalists, concertgoers, and students who want a welcoming place to make
+          music together. We connect members through rehearsals, performances, socials, and campus
+          events built around ensemble playing and shared musical interests.
+        </p>
+        <p class="max-w-4xl text-lg text-muted-foreground">
+          Whether you are a music major, play casually, or just want a way into the campus arts
+          community, SSA at UCSD offers an accessible starting point. Members join for ensemble
+          experience, weekly rehearsals, concert opportunities, and a community that cares about both
+          musical growth and friendship.
+        </p>
+        <p class="max-w-4xl text-lg text-muted-foreground">
+          If you are searching for Symphonic Student Association at UCSD or a classical music club
+          at UCSD, start with the{" "}
+          <a
+            href="/about"
+            class="font-semibold text-primary underline decoration-primary/40 underline-offset-4"
+          >
+            about the Symphonic Student Association at UCSD
+          </a>{" "}
+          page, browse our{" "}
+          <a
+            href="/events"
+            class="font-semibold text-primary underline decoration-primary/40 underline-offset-4"
+          >
+            classical music events at UCSD
+          </a>
+          , or read more about{" "}
+          <a
+            href="/classical-music-club-at-ucsd"
+            class="font-semibold text-primary underline decoration-primary/40 underline-offset-4"
+          >
+            our classical music club at UCSD
+          </a>
+          .
+        </p>
+      </div>
+
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <a
+          href="https://members.ssaucsd.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-2xl border border-primary/15 bg-primary/5 p-6 transition-colors hover:border-primary/30 hover:bg-primary/10"
+        >
+          <h3 class="text-2xl font-bold">Join the membership portal</h3>
+          <p class="mt-3 text-muted-foreground">
+            Create your account to join Symphonic Student Association at UCSD and stay current on
+            rehearsals, performances, and member opportunities.
+          </p>
+        </a>
+        <a
+          href="http://eepurl.com/jz_Srw"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="rounded-2xl border border-primary/15 bg-primary/5 p-6 transition-colors hover:border-primary/30 hover:bg-primary/10"
+        >
+          <h3 class="text-2xl font-bold">Subscribe to the newsletter</h3>
+          <p class="mt-3 text-muted-foreground">
+            Get announcements about concerts, campus happenings, and new ways to participate in SSA
+            at UCSD.
+          </p>
+        </a>
+        <div class="rounded-2xl border border-primary/15 bg-primary/5 p-6">
+          <h3 class="text-2xl font-bold">Stay connected</h3>
+          <p class="mt-3 text-muted-foreground">
+            Follow the community on{" "}
+            <a
+              href="https://discord.gg/PncDrAxvkS"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-semibold text-primary underline decoration-primary/40 underline-offset-4"
+            >
+              Discord
+            </a>{" "}
+            and{" "}
+            <a
+              href="https://www.instagram.com/ssa_at_ucsd"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="font-semibold text-primary underline decoration-primary/40 underline-offset-4"
+            >
+              Instagram
+            </a>{" "}
+            for quick updates, rehearsal reminders, and event photos.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        {faqItems.map(({ question, answer }) => (
+          <article class="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <h3 class="text-2xl font-bold">{question}</h3>
+            <p class="mt-3 text-muted-foreground">{answer}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
 
   <!-- Initiatives Section -->
   <div id="initiatives" class="w-full py-24 px-6 bg-background">

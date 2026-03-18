@@ -26,11 +26,7 @@
       ]
     },
     "typecheck": {
-      "inputs": [
-        "src/**/*.{ts,tsx,mts}",
-        "tsconfig.json",
-        "package.json"
-      ],
+      "inputs": ["src/**/*.{ts,tsx,mts}", "tsconfig.json", "package.json"],
       "outputs": ["*.tsbuildinfo"]
     },
     "format:check": {

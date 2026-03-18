@@ -33,7 +33,7 @@ const description = event.description?.slice(0, 160) || `Join us for ${event.tit
   description={description}
   image={event.image_url || "/hero.webp"}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(generateEventSchema(event))} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(generateEventSchema(event))} />
 
   <div class="min-h-screen bg-background">
     <div class="grid lg:grid-cols-2 min-h-screen">

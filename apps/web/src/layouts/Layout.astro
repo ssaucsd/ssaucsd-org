@@ -13,7 +13,7 @@ interface Props {
 
 const {
   title,
-  description = "SSA at UCSD - University of California, San Diego's largest student-run classical music-oriented organization.",
+  description = "Symphonic Student Association at UCSD is a student-run classical music club at UC San Diego connecting musicians, ensembles, rehearsals, concerts, and community events.",
   image = "/hero.webp",
   canonical
 } = Astro.props;
@@ -34,7 +34,7 @@ const canonicalUrl = canonical || `${siteUrl}${currentPath}`;
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="application-name" content="SSA at UCSD" />
+    <meta name="application-name" content="Symphonic Student Association at UCSD" />
 
     <!-- Canonical -->
     <link rel="canonical" href={canonicalUrl} />
@@ -45,7 +45,7 @@ const canonicalUrl = canonical || `${siteUrl}${currentPath}`;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={`${siteUrl}${image}`} />
-    <meta property="og:site_name" content="SSA at UCSD" />
+    <meta property="og:site_name" content="Symphonic Student Association at UCSD" />
     <meta property="og:locale" content="en_US" />
 
     <!-- Twitter -->
@@ -83,10 +83,11 @@ const canonicalUrl = canonical || `${siteUrl}${currentPath}`;
     </script>
 
     <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify([
-      generateWebSiteSchema(),
-      ...generateSiteNavigationSchema(),
-    ])} />
+    <script
+      is:inline
+      type="application/ld+json"
+      set:html={JSON.stringify([generateWebSiteSchema(), ...generateSiteNavigationSchema()])}
+    />
   </head>
   <body class="antialiased min-h-screen flex flex-col font-sans">
     <Navbar currentPath={currentPath} />
