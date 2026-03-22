@@ -15,11 +15,7 @@ const allItems: BreadcrumbItem[] = [{ name: "Home", href: "/" }, ...items];
 ---
 
 <!-- JSON-LD Schema -->
-<script
-  is:inline
-  type="application/ld+json"
-  set:html={JSON.stringify(generateBreadcrumbSchema(allItems))}
-/>
+<script type="application/ld+json" set:html={JSON.stringify(generateBreadcrumbSchema(allItems))} />
 
 <!-- Visual breadcrumb -->
 <nav
