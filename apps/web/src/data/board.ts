@@ -33,17 +33,6 @@ export const boardMembers: BoardMember[] = [
   },
 
   {
-    name: "Ryan Jeffers",
-    position: "Vice President External, Finance Chair, Ensemble Chair",
-    pronouns: "he/him",
-    year: "4th year",
-    instrument: "Violin, Conductor",
-    imageUrl: "/board/ryan.webp",
-    major: "Economics",
-    minor: "Music",
-  },
-
-  {
     name: "Nathan Luk",
     position: "Secretary",
     pronouns: "he/him",
